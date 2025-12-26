@@ -1,7 +1,7 @@
 package fr.driv.n.cook.presentation.supply.order.dto;
 
-import fr.driv.n.cook.presentation.shared.dto.PaymentMethod;
-import fr.driv.n.cook.presentation.shared.dto.SupplyOrderStatus;
+import fr.driv.n.cook.shared.PaymentMethod;
+import fr.driv.n.cook.shared.SupplyOrderStatus;
 import jakarta.validation.constraints.Size;
 
 public record SupplyOrderPatch(

@@ -1,4 +1,4 @@
-package fr.driv.n.cook.presentation.shared.dto;
+package fr.driv.n.cook.shared;
 
 public enum ReportType {
     SALES_STATS,

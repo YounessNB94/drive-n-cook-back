@@ -1,7 +1,7 @@
 package fr.driv.n.cook.presentation.appointment.dto;
 
-import fr.driv.n.cook.presentation.shared.dto.AppointmentStatus;
-import fr.driv.n.cook.presentation.shared.dto.AppointmentType;
+import fr.driv.n.cook.shared.AppointmentStatus;
+import fr.driv.n.cook.shared.AppointmentType;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;

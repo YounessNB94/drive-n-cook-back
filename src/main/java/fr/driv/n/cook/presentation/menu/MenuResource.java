@@ -4,7 +4,7 @@ import fr.driv.n.cook.presentation.menu.dto.Menu;
 import fr.driv.n.cook.presentation.menu.dto.MenuItem;
 import fr.driv.n.cook.presentation.menu.dto.MenuItemPatch;
 import fr.driv.n.cook.presentation.menu.dto.MenuPatch;
-import fr.driv.n.cook.presentation.shared.dto.MenuStatus;
+import fr.driv.n.cook.shared.MenuStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;

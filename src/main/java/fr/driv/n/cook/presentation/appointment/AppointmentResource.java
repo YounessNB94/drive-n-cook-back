@@ -2,8 +2,8 @@ package fr.driv.n.cook.presentation.appointment;
 
 import fr.driv.n.cook.presentation.appointment.dto.Appointment;
 import fr.driv.n.cook.presentation.appointment.dto.AppointmentPatch;
-import fr.driv.n.cook.presentation.shared.dto.AppointmentStatus;
-import fr.driv.n.cook.presentation.shared.dto.AppointmentType;
+import fr.driv.n.cook.shared.AppointmentStatus;
+import fr.driv.n.cook.shared.AppointmentType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;

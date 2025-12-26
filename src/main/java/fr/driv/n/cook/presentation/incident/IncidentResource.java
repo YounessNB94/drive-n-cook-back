@@ -2,7 +2,7 @@ package fr.driv.n.cook.presentation.incident;
 
 import fr.driv.n.cook.presentation.incident.dto.Incident;
 import fr.driv.n.cook.presentation.incident.dto.IncidentPatch;
-import fr.driv.n.cook.presentation.shared.dto.IncidentStatus;
+import fr.driv.n.cook.shared.IncidentStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;

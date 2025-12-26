@@ -1,6 +1,6 @@
 package fr.driv.n.cook.presentation.report.dto;
 
-import fr.driv.n.cook.presentation.shared.dto.ReportType;
+import fr.driv.n.cook.shared.ReportType;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 

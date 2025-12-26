@@ -1,6 +1,6 @@
 package fr.driv.n.cook.presentation.sale.dto;
 
-import fr.driv.n.cook.presentation.shared.dto.SaleChannel;
+import fr.driv.n.cook.shared.SaleChannel;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 

@@ -1,6 +1,6 @@
 package fr.driv.n.cook.presentation.incident.dto;
 
-import fr.driv.n.cook.presentation.shared.dto.IncidentStatus;
+import fr.driv.n.cook.shared.IncidentStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

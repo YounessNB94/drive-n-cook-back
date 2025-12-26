@@ -1,8 +1,8 @@
 package fr.driv.n.cook.presentation.truck;
 
 import fr.driv.n.cook.presentation.incident.dto.Incident;
-import fr.driv.n.cook.presentation.shared.dto.IncidentStatus;
-import fr.driv.n.cook.presentation.shared.dto.TruckStatus;
+import fr.driv.n.cook.shared.IncidentStatus;
+import fr.driv.n.cook.shared.TruckStatus;
 import fr.driv.n.cook.presentation.truck.dto.MaintenanceRecord;
 import fr.driv.n.cook.presentation.truck.dto.Truck;
 import jakarta.enterprise.context.ApplicationScoped;

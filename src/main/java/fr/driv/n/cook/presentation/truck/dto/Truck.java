@@ -1,6 +1,6 @@
 package fr.driv.n.cook.presentation.truck.dto;
 
-import fr.driv.n.cook.presentation.shared.dto.TruckStatus;
+import fr.driv.n.cook.shared.TruckStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

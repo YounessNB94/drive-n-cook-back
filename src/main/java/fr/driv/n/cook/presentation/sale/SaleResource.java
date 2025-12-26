@@ -1,7 +1,7 @@
 package fr.driv.n.cook.presentation.sale;
 
 import fr.driv.n.cook.presentation.sale.dto.Sale;
-import fr.driv.n.cook.presentation.shared.dto.SaleChannel;
+import fr.driv.n.cook.shared.SaleChannel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

@@ -1,6 +1,6 @@
 package fr.driv.n.cook.presentation.franchise.application.dto;
 
-import fr.driv.n.cook.presentation.shared.dto.PaymentMethod;
+import fr.driv.n.cook.shared.PaymentMethod;
 import jakarta.validation.constraints.Size;
 
 public record FranchiseApplicationPatch(
