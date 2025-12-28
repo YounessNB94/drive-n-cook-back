@@ -3,37 +3,40 @@ package fr.driv.n.cook.presentation.franchisee;
 import fr.driv.n.cook.presentation.franchisee.dto.Franchisee;
 import fr.driv.n.cook.presentation.franchisee.dto.FranchiseePatch;
 import fr.driv.n.cook.presentation.franchisee.dto.FranchiseeRegistration;
+import fr.driv.n.cook.service.franchisee.FranchiseeService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.time.LocalDateTime;
-
+@ApplicationScoped
 @Path("/franchisees")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@ApplicationScoped
 public class FranchiseesResource {
+
+    @Inject
+    FranchiseeService franchiseeService;
 
     @GET
     @Path("/me")
     public Franchisee getOwnProfile() {
-        return stubFranchisee();
+        return franchiseeService.getById(currentFranchiseeId());
     }
 
     @POST
     public Franchisee createFranchiseeAccount(@Valid FranchiseeRegistration registration) {
-        return stubFranchisee();
+        return franchiseeService.register(registration);
     }
 
     @PATCH
     @Path("/me")
     public Franchisee updateOwnProfile(@Valid FranchiseePatch franchiseePatch) {
-        return stubFranchisee();
+        return franchiseeService.updateProfile(currentFranchiseeId(), franchiseePatch);
     }
 
-    private Franchisee stubFranchisee() {
-        return new Franchisee(1L, "founder@drivncook.test", "Jane", "Doe", "+33123456789", "Driv'n Cook", "1 rue de Rivoli", LocalDateTime.now());
+    private Long currentFranchiseeId() {
+        return 1L;
     }
 }

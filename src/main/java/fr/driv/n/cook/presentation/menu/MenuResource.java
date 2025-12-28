@@ -4,14 +4,13 @@ import fr.driv.n.cook.presentation.menu.dto.Menu;
 import fr.driv.n.cook.presentation.menu.dto.MenuItem;
 import fr.driv.n.cook.presentation.menu.dto.MenuItemPatch;
 import fr.driv.n.cook.presentation.menu.dto.MenuPatch;
-import fr.driv.n.cook.shared.MenuStatus;
+import fr.driv.n.cook.service.menu.MenuService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Path("/menus")
@@ -20,33 +19,38 @@ import java.util.List;
 @ApplicationScoped
 public class MenuResource {
 
+    @Inject
+    MenuService menuService;
+
     @POST
-    public Menu createMenu(@Valid Menu menu) {
-        return new Menu(1L, MenuStatus.DRAFT, LocalDateTime.now());
+    public Menu createMenu() {
+        return menuService.createMenu(currentFranchiseeId());
     }
 
     @GET
     @Path("/me")
     public Menu getMyMenu() {
-        return new Menu(1L, MenuStatus.PUBLISHED, LocalDateTime.now());
+        return menuService.listMenusForFranchisee(currentFranchiseeId()).stream()
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Aucun menu"));
     }
 
     @PATCH
     @Path("/me")
     public Menu updateMyMenu(@Valid MenuPatch menuPatch) {
-        return new Menu(1L, menuPatch.status(), LocalDateTime.now());
+        return menuService.patchMenu(currentMenuId(), menuPatch);
     }
 
     @GET
     @Path("/me/items")
     public List<MenuItem> listMenuItems() {
-        return List.of(stubMenuItem(1L), stubMenuItem(2L));
+        return menuService.listItems(currentMenuId());
     }
 
     @POST
     @Path("/me/items")
     public MenuItem addMenuItem(@Valid MenuItem menuItem) {
-        return stubMenuItem(3L);
+        return menuService.createItem(currentMenuId(), menuItem);
     }
 
     @PATCH
@@ -55,22 +59,23 @@ public class MenuResource {
             @PathParam("itemId") Long itemId,
             @Valid MenuItemPatch menuItemPatch
     ) {
-        return stubMenuItem(itemId);
+        return menuService.patchItem(itemId, menuItemPatch);
     }
 
     @DELETE
     @Path("/me/items/{itemId}")
     public void deleteMenuItem(@PathParam("itemId") Long itemId) {
+        menuService.deleteItem(itemId);
     }
 
-    private MenuItem stubMenuItem(Long id) {
-        return new MenuItem(
-                id,
-                1L,
-                "Tacos Signature " + id,
-                new BigDecimal("12.90"),
-                id.intValue() * 100,
-                Boolean.TRUE
-        );
+    private Long currentFranchiseeId() {
+        return 1L;
+    }
+
+    private Long currentMenuId() {
+        return menuService.listMenusForFranchisee(currentFranchiseeId()).stream()
+                .findFirst()
+                .map(Menu::id)
+                .orElseThrow(() -> new NotFoundException("Aucun menu"));
     }
 }

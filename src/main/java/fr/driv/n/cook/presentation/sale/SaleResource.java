@@ -1,17 +1,16 @@
 package fr.driv.n.cook.presentation.sale;
 
 import fr.driv.n.cook.presentation.sale.dto.Sale;
-import fr.driv.n.cook.shared.SaleChannel;
+import fr.driv.n.cook.service.sale.SaleService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.Produces;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Path("/sales")
@@ -19,15 +18,23 @@ import java.util.List;
 @ApplicationScoped
 public class SaleResource {
 
+    @Inject
+    SaleService saleService;
+
     @GET
     public List<Sale> listSales(
             @QueryParam("from") LocalDate from,
             @QueryParam("to") LocalDate to,
             @QueryParam("menuItemId") Long menuItemId
     ) {
-        return List.of(
-                new Sale(1L, LocalDateTime.now().minusDays(1), menuItemId, 12, new BigDecimal("180.50"), SaleChannel.ON_SITE),
-                new Sale(2L, LocalDateTime.now().minusHours(3), 42L, 3, new BigDecimal("45.00"), SaleChannel.RESERVATION)
-        );
+        return saleService.listSales(rangeStart(from), rangeEnd(to), menuItemId);
+    }
+
+    private java.time.LocalDateTime rangeStart(LocalDate from) {
+        return from != null ? from.atStartOfDay() : null;
+    }
+
+    private java.time.LocalDateTime rangeEnd(LocalDate to) {
+        return to != null ? to.plusDays(1).atStartOfDay() : null;
     }
 }

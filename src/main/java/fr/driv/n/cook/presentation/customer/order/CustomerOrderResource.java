@@ -3,16 +3,12 @@ package fr.driv.n.cook.presentation.customer.order;
 import fr.driv.n.cook.presentation.customer.order.dto.CustomerOrder;
 import fr.driv.n.cook.presentation.customer.order.dto.CustomerOrderItem;
 import fr.driv.n.cook.presentation.customer.order.dto.CustomerOrderPatch;
-import fr.driv.n.cook.shared.CustomerOrderStatus;
-import fr.driv.n.cook.shared.CustomerOrderType;
-import fr.driv.n.cook.shared.PaymentMethod;
+import fr.driv.n.cook.service.customer.order.CustomerOrderService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Path("/customer-orders")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -20,9 +16,12 @@ import java.time.LocalDateTime;
 @ApplicationScoped
 public class CustomerOrderResource {
 
+    @Inject
+    CustomerOrderService customerOrderService;
+
     @POST
     public CustomerOrder createCustomerOrder(@Valid CustomerOrder order) {
-        return stubOrder(1L, order.type());
+        return customerOrderService.createOrder(currentFranchiseeId(), order);
     }
 
     @POST
@@ -31,7 +30,7 @@ public class CustomerOrderResource {
             @PathParam("orderId") Long orderId,
             @Valid CustomerOrderItem item
     ) {
-        return stubItem(orderId, 1L);
+        return customerOrderService.addItem(orderId, item);
     }
 
     @PATCH
@@ -40,32 +39,10 @@ public class CustomerOrderResource {
             @PathParam("orderId") Long orderId,
             @Valid CustomerOrderPatch patch
     ) {
-        return stubOrder(orderId, CustomerOrderType.ON_SITE);
+        return customerOrderService.patchOrder(orderId, patch);
     }
 
-    private CustomerOrder stubOrder(Long id, CustomerOrderType type) {
-        return new CustomerOrder(
-                id,
-                type,
-                CustomerOrderStatus.PREPARING,
-                42L,
-                true,
-                PaymentMethod.CASH,
-                new BigDecimal("32.50"),
-                325,
-                LocalDateTime.now().minusHours(2),
-                LocalDateTime.now()
-        );
-    }
-
-    private CustomerOrderItem stubItem(Long orderId, Long itemId) {
-        return new CustomerOrderItem(
-                itemId,
-                orderId,
-                10L,
-                2,
-                new BigDecimal("15.00"),
-                150
-        );
+    private Long currentFranchiseeId() {
+        return 1L;
     }
 }

@@ -3,14 +3,13 @@ package fr.driv.n.cook.presentation.franchise.application;
 import fr.driv.n.cook.presentation.franchise.application.dto.FranchiseApplication;
 import fr.driv.n.cook.presentation.franchise.application.dto.FranchiseApplicationPatch;
 import fr.driv.n.cook.presentation.franchise.application.dto.FranchiseApplicationRequest;
-import fr.driv.n.cook.shared.FranchiseApplicationStatus;
-import fr.driv.n.cook.shared.PaymentMethod;
+import fr.driv.n.cook.service.franchise.application.FranchiseApplicationService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Path("/franchise-applications")
@@ -19,14 +18,17 @@ import java.util.List;
 @ApplicationScoped
 public class FranchiseApplicationResource {
 
+    @Inject
+    FranchiseApplicationService applicationService;
+
     @POST
     public FranchiseApplication submitApplication(@Valid FranchiseApplicationRequest request) {
-        return stubApplication();
+        return applicationService.submit(currentFranchiseeId(), request);
     }
 
     @GET
     public List<FranchiseApplication> listApplications(@QueryParam("franchisee") String franchisee) {
-        return List.of(stubApplication(), stubApplication(2L));
+        return applicationService.listForFranchisee(currentFranchiseeId());
     }
 
     @PATCH
@@ -35,22 +37,10 @@ public class FranchiseApplicationResource {
             @PathParam("applicationId") Long applicationId,
             @Valid FranchiseApplicationPatch patch
     ) {
-        return stubApplication();
+        return applicationService.updatePayment(applicationId, patch);
     }
 
-    private FranchiseApplication stubApplication() {
-        return stubApplication(1L);
-    }
-
-    private FranchiseApplication stubApplication(Long id) {
-        return new FranchiseApplication(
-                id,
-                FranchiseApplicationStatus.PENDING,
-                false,
-                PaymentMethod.CARD,
-                "PAY-REF",
-                LocalDateTime.now().minusDays(2),
-                LocalDateTime.now()
-        );
+    private Long currentFranchiseeId() {
+        return 1L;
     }
 }

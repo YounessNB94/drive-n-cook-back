@@ -4,6 +4,8 @@ import fr.driv.n.cook.presentation.incident.dto.Incident;
 import fr.driv.n.cook.presentation.incident.dto.IncidentPatch;
 import fr.driv.n.cook.repository.incident.IncidentRepository;
 import fr.driv.n.cook.repository.incident.entity.IncidentEntity;
+import fr.driv.n.cook.repository.truck.TruckRepository;
+import fr.driv.n.cook.repository.truck.entity.TruckEntity;
 import fr.driv.n.cook.service.truck.mapper.TruckMapper;
 import fr.driv.n.cook.shared.IncidentStatus;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,10 +21,24 @@ public class IncidentService {
     IncidentRepository incidentRepository;
 
     @Inject
+    TruckRepository truckRepository;
+
+    @Inject
     TruckMapper mapper;
 
     public Incident getIncident(Long incidentId) {
         return mapper.toDto(fetchIncident(incidentId));
+    }
+
+    @Transactional
+    public Incident createIncident(Long truckId, Incident incident) {
+        TruckEntity truck = fetchTruck(truckId);
+        IncidentEntity entity = new IncidentEntity();
+        entity.setTruck(truck);
+        entity.setDescription(incident.description());
+        entity.setStatus(incident.status() != null ? incident.status() : IncidentStatus.OPEN);
+        incidentRepository.persist(entity);
+        return mapper.toDto(entity);
     }
 
     @Transactional
@@ -55,5 +71,9 @@ public class IncidentService {
         return incidentRepository.findByIdOptional(incidentId)
                 .orElseThrow(() -> new NotFoundException("Incident introuvable"));
     }
-}
 
+    private TruckEntity fetchTruck(Long truckId) {
+        return truckRepository.findByIdOptional(truckId)
+                .orElseThrow(() -> new NotFoundException("Camion introuvable"));
+    }
+}
