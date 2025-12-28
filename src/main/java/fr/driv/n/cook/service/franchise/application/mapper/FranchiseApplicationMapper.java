@@ -16,6 +16,8 @@ public interface FranchiseApplicationMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "franchisee", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "paid", constant = "false")
     @Mapping(target = "paymentMethod", ignore = true)
     @Mapping(target = "paymentRef", ignore = true)

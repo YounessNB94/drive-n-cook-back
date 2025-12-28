@@ -14,6 +14,7 @@ import org.mapstruct.MappingTarget;
 public interface FranchiseeMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "applications", ignore = true)
     @Mapping(target = "orders", ignore = true)
     @Mapping(target = "trucks", ignore = true)
@@ -30,4 +31,3 @@ public interface FranchiseeMapper {
     @Mapping(target = "address", source = "address")
     void updateEntityFromPatch(FranchiseePatch patch, @MappingTarget FranchiseeEntity entity);
 }
-
