@@ -1,5 +1,9 @@
 package fr.driv.n.cook.service.report;
 
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import fr.driv.n.cook.presentation.report.dto.Report;
 import fr.driv.n.cook.presentation.report.dto.ReportFile;
 import fr.driv.n.cook.presentation.report.dto.ReportRequest;
@@ -14,8 +18,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -79,8 +82,89 @@ public class ReportService {
         if (entity.getStatus() != ReportStatus.READY) {
             throw new IllegalStateException("Rapport pas encore prêt");
         }
-        byte[] stubContent = ("Report " + reportId).getBytes(StandardCharsets.UTF_8);
-        return new ReportFile("report-" + reportId + ".pdf", "application/pdf", stubContent);
+        byte[] pdfBytes = generatePdf(entity);
+        return new ReportFile("report-" + reportId + ".pdf", "application/pdf", pdfBytes);
+    }
+
+    private byte[] generatePdf(ReportEntity entity) {
+        try (var buffer = new java.io.ByteArrayOutputStream()) {
+            Document document = new Document(PageSize.A4, 36, 36, 54, 36);
+            PdfWriter.getInstance(document, buffer);
+            document.open();
+
+            Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+            Font subtitleFont = FontFactory.getFont(FontFactory.HELVETICA, 11);
+            Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.WHITE);
+            Font valueFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+
+            document.add(new Paragraph("Rapport Driv'n Cook", titleFont));
+            document.add(new Paragraph("Franchisé ID : " + entity.getFranchisee().getId(), subtitleFont));
+            document.add(new Paragraph("Généré le : " + java.time.LocalDateTime.now(), subtitleFont));
+            document.add(Chunk.NEWLINE);
+
+            PdfPTable metaTable = new PdfPTable(new float[]{2f, 4f});
+            metaTable.setWidthPercentage(100);
+            addMetaRow(metaTable, "Rapport", entity.getType().name(), headerFont, valueFont);
+            addMetaRow(metaTable, "Période", entity.getFrom() + " → " + entity.getTo(), headerFont, valueFont);
+            addMetaRow(metaTable, "Statut", entity.getStatus().name(), headerFont, valueFont);
+            addMetaRow(metaTable, "Créé le", entity.getCreatedAt() != null ? entity.getCreatedAt().toString() : "—", headerFont, valueFont);
+            document.add(metaTable);
+
+            document.add(Chunk.NEWLINE);
+            document.add(new Paragraph("Synthèse (extrait)", subtitleFont));
+            document.add(Chunk.NEWLINE);
+
+            PdfPTable summary = new PdfPTable(3);
+            summary.setWidthPercentage(100);
+            summary.setWidths(new float[]{2f, 1f, 3f});
+            addHeaderCell(summary, "Indicateur", headerFont);
+            addHeaderCell(summary, "Valeur", headerFont);
+            addHeaderCell(summary, "Commentaire", headerFont);
+
+            addSummaryRow(summary, "Commandes traitées", "—", "Données calculées côté base prochainement.", valueFont);
+            addSummaryRow(summary, "CA total", "—", "Aligné sur `RevenuePointEntity`.", valueFont);
+            addSummaryRow(summary, "Incidents", "—", "Pour les rapports TRUCK_STATUS.", valueFont);
+            document.add(summary);
+
+            document.close();
+            return buffer.toByteArray();
+        } catch (DocumentException | java.io.IOException e) {
+            throw new IllegalStateException("Impossible de générer le PDF", e);
+        }
+    }
+
+    private void addMetaRow(PdfPTable table, String label, String value, Font headerFont, Font valueFont) {
+        PdfPCell keyCell = new PdfPCell(new Phrase(label, headerFont));
+        keyCell.setBackgroundColor(new Color(38, 70, 83));
+        keyCell.setPadding(6);
+        table.addCell(keyCell);
+
+        PdfPCell valueCell = new PdfPCell(new Phrase(value != null ? value : "—", valueFont));
+        valueCell.setPadding(6);
+        table.addCell(valueCell);
+    }
+
+    private void addHeaderCell(PdfPTable table, String text, Font font) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, font));
+        cell.setBackgroundColor(new Color(38, 70, 83));
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setPadding(6);
+        table.addCell(cell);
+    }
+
+    private void addSummaryRow(PdfPTable table, String indicator, String value, String comment, Font font) {
+        PdfPCell indicatorCell = new PdfPCell(new Phrase(indicator, font));
+        indicatorCell.setPadding(6);
+        table.addCell(indicatorCell);
+
+        PdfPCell valueCell = new PdfPCell(new Phrase(value, font));
+        valueCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell.setPadding(6);
+        table.addCell(valueCell);
+
+        PdfPCell commentCell = new PdfPCell(new Phrase(comment, font));
+        commentCell.setPadding(6);
+        table.addCell(commentCell);
     }
 
     private ReportEntity fetchReport(Long reportId) {
