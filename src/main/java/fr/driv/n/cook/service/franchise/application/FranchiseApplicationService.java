@@ -12,6 +12,7 @@ import fr.driv.n.cook.shared.FranchiseApplicationStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
@@ -45,10 +46,27 @@ public class FranchiseApplicationService {
                 .toList();
     }
 
+    public List<FranchiseApplication> listAll(FranchiseApplicationStatus status) {
+        List<FranchiseApplicationEntity> entities = status != null
+                ? repository.listByStatus(status)
+                : repository.listAll();
+        return entities.stream().map(mapper::toDto).toList();
+    }
+
     @Transactional
     public FranchiseApplication updatePayment(Long applicationId, FranchiseApplicationPatch patch) {
         FranchiseApplicationEntity entity = fetchApplication(applicationId);
         mapper.updateEntityFromPatch(patch, entity);
+        return mapper.toDto(entity);
+    }
+
+    @Transactional
+    public FranchiseApplication updateStatus(Long applicationId, FranchiseApplicationStatus status) {
+        FranchiseApplicationEntity entity = fetchApplication(applicationId);
+        if (status.equals(FranchiseApplicationStatus.APPROVED) && !entity.isPaid()) {
+            throw new BadRequestException("La demande doit être payée avant validation");
+        }
+        entity.setStatus(status);
         return mapper.toDto(entity);
     }
 

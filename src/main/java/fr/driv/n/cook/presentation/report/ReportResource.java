@@ -4,6 +4,7 @@ import fr.driv.n.cook.presentation.report.dto.Report;
 import fr.driv.n.cook.presentation.report.dto.ReportFile;
 import fr.driv.n.cook.presentation.report.dto.ReportRequest;
 import fr.driv.n.cook.service.report.ReportService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -22,8 +23,22 @@ public class ReportResource {
     ReportService reportService;
 
     @POST
-    public Report requestReport(@Valid ReportRequest request) {
-        return reportService.requestReport(currentFranchiseeId(), request);
+    @Path("/me")
+    @Produces("application/pdf")
+    public Response requestMyReport(@Valid ReportRequest request) {
+        ReportFile file = reportService.generateReport(currentFranchiseeId(), request);
+        return buildPdfResponse(file);
+    }
+
+    @POST
+    @RolesAllowed("ADMIN")
+    @Produces("application/pdf")
+    public Response requestReportForAdmin(@Valid ReportRequest request) {
+        if (request.franchiseeId() == null) {
+            throw new BadRequestException("franchiseeId requis pour un rapport admin");
+        }
+        ReportFile file = reportService.generateReport(request.franchiseeId(), request);
+        return buildPdfResponse(file);
     }
 
     @GET
@@ -32,11 +47,8 @@ public class ReportResource {
         return reportService.getReport(reportId);
     }
 
-    @GET
-    @Path("/{reportId}/file")
-    @Produces("application/pdf")
-    public Response downloadReportFile(@PathParam("reportId") Long reportId) {
-        ReportFile file = reportService.downloadFile(reportId);
+
+    private Response buildPdfResponse(ReportFile file) {
         return Response.ok(file.content())
                 .type(file.contentType())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.fileName() + "\"")

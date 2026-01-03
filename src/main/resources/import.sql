@@ -43,13 +43,33 @@ SELECT setval(pg_get_serial_sequence('supply_orders', 'id'), 6, true);
 
 INSERT INTO customer_orders (id, type, status, franchisee_id, paid, payment_method, total_cash, total_points, created_at, updated_at)
 VALUES
-    (1, 'ON_SITE', 'PREPARING', 1, true, 'CASH', 48.50, 0, now(), now());
-SELECT setval(pg_get_serial_sequence('customer_orders', 'id'), 1, true);
+    (1, 'ON_SITE', 'PREPARING', 1, true, 'CASH', 48.50, 0, now(), now()),
+    (2, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 32.40, 0, '2025-12-20 10:50:00', '2025-12-20 11:05:00'),
+    (3, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 41.10, 0, '2025-12-21 13:10:00', '2025-12-21 13:45:00'),
+    (4, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 27.80, 0, '2025-12-22 11:55:00', '2025-12-22 12:20:00'),
+    (5, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 54.25, 0, '2025-12-24 18:15:00', '2025-12-24 18:55:00'),
+    (6, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 36.90, 0, '2025-12-26 09:45:00', '2025-12-26 10:15:00'),
+    (7, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 63.50, 0, '2025-12-27 18:50:00', '2025-12-27 19:25:00'),
+    (8, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 29.60, 0, '2025-12-29 08:30:00', '2025-12-29 08:55:00'),
+    (9, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 45.75, 0, '2025-12-30 13:55:00', '2025-12-30 14:20:00'),
+    (10, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 38.20, 0, '2026-01-01 12:20:00', '2026-01-01 12:50:00'),
+    (11, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 52.10, 0, '2026-01-03 17:30:00', '2026-01-03 18:00:00');
+SELECT setval(pg_get_serial_sequence('customer_orders', 'id'), 11, true);
 
 INSERT INTO sales (id, customer_order_id, quantity, total_amount, channel, date)
 VALUES
-    (1, 1, 3, 48.50, 'ON_SITE', now());
-SELECT setval(pg_get_serial_sequence('sales', 'id'), 1, true);
+    (1, 1, 3, 48.50, 'ON_SITE', now()),
+    (2, 2, 2, 32.40, 'ON_SITE', '2025-12-20 11:00:00'),
+    (3, 3, 3, 41.10, 'ON_SITE', '2025-12-21 13:30:00'),
+    (4, 4, 2, 27.80, 'ON_SITE', '2025-12-22 12:15:00'),
+    (5, 5, 4, 54.25, 'ON_SITE', '2025-12-24 18:45:00'),
+    (6, 6, 3, 36.90, 'ON_SITE', '2025-12-26 10:05:00'),
+    (7, 7, 5, 63.50, 'ON_SITE', '2025-12-27 19:20:00'),
+    (8, 8, 2, 29.60, 'ON_SITE', '2025-12-29 08:50:00'),
+    (9, 9, 3, 45.75, 'ON_SITE', '2025-12-30 14:10:00'),
+    (10, 10, 3, 38.20, 'ON_SITE', '2026-01-01 12:40:00'),
+    (11, 11, 4, 52.10, 'ON_SITE', '2026-01-03 17:55:00');
+SELECT setval(pg_get_serial_sequence('sales', 'id'), 11, true);
 
 INSERT INTO inventory_items (id, warehouse_id, name, unit, available_quantity)
 VALUES

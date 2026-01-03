@@ -1,14 +1,14 @@
 package fr.driv.n.cook.presentation.report.dto;
 
 import fr.driv.n.cook.shared.ReportType;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ReportRequest(
         @NotNull ReportType type,
-        @NotNull LocalDate from,
-        @NotNull @FutureOrPresent LocalDate to
+        @NotNull LocalDateTime from,
+        @NotNull LocalDateTime to,
+        Long franchiseeId
 ) {
 }

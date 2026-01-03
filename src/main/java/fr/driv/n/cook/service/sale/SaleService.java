@@ -19,16 +19,22 @@ public class SaleService {
     @Inject
     SaleMapper mapper;
 
-    public List<Sale> listSales(LocalDateTime from, LocalDateTime to, Long menuItemId) {
+    public List<Sale> listSales(Long franchiseeId, LocalDateTime from, LocalDateTime to, Long menuItemId) {
         LocalDateTime effectiveFrom = from != null ? from : LocalDateTime.now().minusDays(7);
         LocalDateTime effectiveTo = to != null ? to : LocalDateTime.now();
         List<SaleEntity> entities;
-        if (menuItemId != null) {
-            entities = saleRepository.list("menuItem.id = ?1 and date between ?2 and ?3", menuItemId, effectiveFrom, effectiveTo);
+        if (franchiseeId != null && menuItemId != null) {
+            entities = saleRepository.list("customerOrder.franchisee.id = ?1 and menuItem.id = ?2 and date between ?3 and ?4",
+                    franchiseeId, menuItemId, effectiveFrom, effectiveTo);
+        } else if (franchiseeId != null) {
+            entities = saleRepository.list("customerOrder.franchisee.id = ?1 and date between ?2 and ?3",
+                    franchiseeId, effectiveFrom, effectiveTo);
+        } else if (menuItemId != null) {
+            entities = saleRepository.list("menuItem.id = ?1 and date between ?2 and ?3",
+                    menuItemId, effectiveFrom, effectiveTo);
         } else {
             entities = saleRepository.list("date between ?1 and ?2", effectiveFrom, effectiveTo);
         }
         return entities.stream().map(mapper::toDto).toList();
     }
 }
-

@@ -2,6 +2,7 @@ package fr.driv.n.cook.presentation.sale;
 
 import fr.driv.n.cook.presentation.sale.dto.Sale;
 import fr.driv.n.cook.service.sale.SaleService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -11,6 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.Produces;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Path("/sales")
@@ -22,19 +24,27 @@ public class SaleResource {
     SaleService saleService;
 
     @GET
-    public List<Sale> listSales(
-            @QueryParam("from") LocalDate from,
-            @QueryParam("to") LocalDate to,
+    @Path("/me")
+    public List<Sale> listMySales(
+            @QueryParam("from") LocalDateTime from,
+            @QueryParam("to") LocalDateTime to,
             @QueryParam("menuItemId") Long menuItemId
     ) {
-        return saleService.listSales(rangeStart(from), rangeEnd(to), menuItemId);
+        return saleService.listSales(currentFranchiseeId(), from, to, menuItemId);
     }
 
-    private java.time.LocalDateTime rangeStart(LocalDate from) {
-        return from != null ? from.atStartOfDay() : null;
+    @GET
+    @RolesAllowed("ADMIN")
+    public List<Sale> listSalesForAdmin(
+            @QueryParam("from") LocalDateTime from,
+            @QueryParam("to") LocalDateTime to,
+            @QueryParam("menuItemId") Long menuItemId,
+            @QueryParam("franchiseeId") Long franchiseeId
+    ) {
+        return saleService.listSales(franchiseeId, from, to, menuItemId);
     }
 
-    private java.time.LocalDateTime rangeEnd(LocalDate to) {
-        return to != null ? to.plusDays(1).atStartOfDay() : null;
+    private Long currentFranchiseeId() {
+        return 1L;
     }
 }

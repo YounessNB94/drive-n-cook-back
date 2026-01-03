@@ -3,12 +3,16 @@ package fr.driv.n.cook.presentation.franchise.application;
 import fr.driv.n.cook.presentation.franchise.application.dto.FranchiseApplication;
 import fr.driv.n.cook.presentation.franchise.application.dto.FranchiseApplicationPatch;
 import fr.driv.n.cook.presentation.franchise.application.dto.FranchiseApplicationRequest;
+import fr.driv.n.cook.presentation.franchise.application.dto.FranchiseApplicationStatusPatch;
 import fr.driv.n.cook.service.franchise.application.FranchiseApplicationService;
+import fr.driv.n.cook.shared.FranchiseApplicationStatus;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
@@ -27,8 +31,17 @@ public class FranchiseApplicationResource {
     }
 
     @GET
-    public List<FranchiseApplication> listApplications(@QueryParam("franchisee") String franchisee) {
+    public List<FranchiseApplication> listApplications() {
         return applicationService.listForFranchisee(currentFranchiseeId());
+    }
+
+    @GET
+    @Path("/admin")
+    @RolesAllowed("ADMIN")
+    public List<FranchiseApplication> listApplicationsForAdmin(
+            @QueryParam("status") FranchiseApplicationStatus status
+    ) {
+        return applicationService.listAll(status);
     }
 
     @PATCH
@@ -38,6 +51,16 @@ public class FranchiseApplicationResource {
             @Valid FranchiseApplicationPatch patch
     ) {
         return applicationService.updatePayment(applicationId, patch);
+    }
+
+    @PATCH
+    @Path("/admin/{applicationId}/status")
+    @RolesAllowed("ADMIN")
+    public FranchiseApplication updateStatus(
+            @PathParam("applicationId") Long applicationId,
+            @Valid FranchiseApplicationStatusPatch patch
+    ) {
+        return applicationService.updateStatus(applicationId, patch.status());
     }
 
     private Long currentFranchiseeId() {

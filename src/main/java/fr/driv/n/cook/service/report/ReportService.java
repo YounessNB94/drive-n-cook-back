@@ -19,15 +19,11 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 
 import java.awt.Color;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @ApplicationScoped
 public class ReportService {
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Inject
     ReportRepository reportRepository;
@@ -39,51 +35,18 @@ public class ReportService {
     ReportMapper mapper;
 
     @Transactional
-    public Report requestReport(Long franchiseeId, ReportRequest request) {
+    public ReportFile generateReport(Long franchiseeId, ReportRequest request) {
         FranchiseeEntity franchisee = fetchFranchisee(franchiseeId);
         ReportEntity entity = mapper.toEntity(request);
         entity.setFranchisee(franchisee);
+        entity.setStatus(ReportStatus.READY);
         reportRepository.persist(entity);
-        scheduleGeneration(entity.getId());
-        return mapper.toDto(entity);
-    }
-
-    private void scheduleGeneration(Long reportId) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                Thread.sleep(1000); // simulation courte
-                markReportReady(reportId);
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-            }
-        }, executor);
+        byte[] pdfBytes = generatePdf(entity);
+        return new ReportFile("report-" + entity.getId() + ".pdf", "application/pdf", pdfBytes);
     }
 
     public Report getReport(Long reportId) {
         return mapper.toDto(fetchReport(reportId));
-    }
-
-    public List<Report> listReports(Long franchiseeId) {
-        return reportRepository.listByFranchisee(franchiseeId).stream()
-                .map(mapper::toDto)
-                .toList();
-    }
-
-    @Transactional
-    public Report markReportReady(Long reportId) {
-        ReportEntity entity = fetchReport(reportId);
-        entity.setStatus(ReportStatus.READY);
-        entity.setFilePath("/tmp/report-" + reportId + ".pdf");
-        return mapper.toDto(entity);
-    }
-
-    public ReportFile downloadFile(Long reportId) {
-        ReportEntity entity = fetchReport(reportId);
-        if (entity.getStatus() != ReportStatus.READY) {
-            throw new IllegalStateException("Rapport pas encore prêt");
-        }
-        byte[] pdfBytes = generatePdf(entity);
-        return new ReportFile("report-" + reportId + ".pdf", "application/pdf", pdfBytes);
     }
 
     private byte[] generatePdf(ReportEntity entity) {
@@ -98,8 +61,8 @@ public class ReportService {
             Font valueFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
 
             document.add(new Paragraph("Rapport Driv'n Cook", titleFont));
-            document.add(new Paragraph("Franchisé ID : " + entity.getFranchisee().getId(), subtitleFont));
-            document.add(new Paragraph("Généré le : " + java.time.LocalDateTime.now(), subtitleFont));
+            document.add(new Paragraph("Nom compagnie : " + entity.getFranchisee().getCompanyName(), subtitleFont));
+            document.add(new Paragraph("Généré le : " + LocalDateTime.now(), subtitleFont));
             document.add(Chunk.NEWLINE);
 
             PdfPTable metaTable = new PdfPTable(new float[]{2f, 4f});
