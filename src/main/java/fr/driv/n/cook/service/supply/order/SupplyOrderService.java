@@ -15,6 +15,7 @@ import fr.driv.n.cook.repository.warehouse.WarehouseRepository;
 import fr.driv.n.cook.repository.warehouse.entity.InventoryItemEntity;
 import fr.driv.n.cook.repository.warehouse.entity.WarehouseEntity;
 import fr.driv.n.cook.service.supply.order.mapper.SupplyOrderMapper;
+import fr.driv.n.cook.presentation.warehouse.dto.WarehouseAvailability;
 import fr.driv.n.cook.shared.SupplyOrderStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -75,6 +76,10 @@ public class SupplyOrderService {
                 throw new BadRequestException("Seul l'admin peut passer une commande en READY");
             }
             ensureValidTransition(entity.getStatus(), patch.status());
+            if (patch.status() == SupplyOrderStatus.CONFIRMED
+                    && entity.getStatus() != SupplyOrderStatus.CONFIRMED) {
+                reserveInventoryForConfirmation(entity);
+            }
             entity.setStatus(patch.status());
         }
         if (patch.paid() != null) {
@@ -150,12 +155,66 @@ public class SupplyOrderService {
         return entity;
     }
 
+    private void reserveInventoryForConfirmation(SupplyOrderEntity order) {
+        if (order.getPickupWarehouse() == null) {
+            throw new BadRequestException("pickupWarehouse obligatoire avant confirmation");
+        }
+        List<SupplyOrderItemEntity> items = supplyOrderItemRepository.listByOrder(order.getId());
+        if (items.isEmpty()) {
+            throw new BadRequestException("Impossible de confirmer une commande sans articles");
+        }
+        Long warehouseId = order.getPickupWarehouse().getId();
+        // Validation des stocks
+        for (SupplyOrderItemEntity item : items) {
+            InventoryItemEntity inventoryItem = item.getInventoryItem();
+            if (!inventoryItem.getWarehouse().getId().equals(warehouseId)) {
+                throw new BadRequestException("Tous les articles doivent provenir de l'entrepôt sélectionné");
+            }
+            if (inventoryItem.getAvailableQuantity() == null
+                    || inventoryItem.getAvailableQuantity() < item.getQuantity()) {
+                throw new BadRequestException("Stock insuffisant pour l'article " + inventoryItem.getName());
+            }
+        }
+        // Décrément des quantités
+        for (SupplyOrderItemEntity item : items) {
+            InventoryItemEntity inventoryItem = item.getInventoryItem();
+            inventoryItem.setAvailableQuantity(inventoryItem.getAvailableQuantity() - item.getQuantity());
+        }
+    }
+
     @Transactional
     public SupplyOrder markReady(Long orderId) {
         SupplyOrderEntity entity = fetchOrder(orderId);
         ensureValidTransition(entity.getStatus(), SupplyOrderStatus.READY);
         entity.setStatus(SupplyOrderStatus.READY);
         return mapper.toDto(entity);
+    }
+
+    public List<WarehouseAvailability> evaluateWarehouseAvailability(Long supplyOrderId) {
+        SupplyOrderEntity order = fetchOrder(supplyOrderId);
+        List<SupplyOrderItemEntity> items = supplyOrderItemRepository.listByOrder(order.getId());
+        if (items.isEmpty()) {
+            throw new BadRequestException("La commande ne contient aucun article");
+        }
+        return warehouseRepository.listAll().stream()
+                .map(warehouse -> buildAvailability(warehouse, items))
+                .filter(result -> !result.items().isEmpty())
+                .toList();
+    }
+
+    private WarehouseAvailability buildAvailability(WarehouseEntity warehouse, List<SupplyOrderItemEntity> orderItems) {
+        List<WarehouseAvailability.ItemAvailability> availability = orderItems.stream()
+                .filter(item -> item.getInventoryItem().getWarehouse().getId().equals(warehouse.getId()))
+                .map(item -> new WarehouseAvailability.ItemAvailability(
+                        item.getInventoryItem().getId(),
+                        item.getInventoryItem().getName(),
+                        item.getQuantity(),
+                        item.getInventoryItem().getAvailableQuantity() == null ? 0 : item.getInventoryItem().getAvailableQuantity()
+                ))
+                .toList();
+        boolean sufficient = !availability.isEmpty() && availability.stream()
+                .allMatch(entry -> entry.availableQuantity() >= entry.requestedQuantity());
+        return new WarehouseAvailability(warehouse.getId(), warehouse.getName(), sufficient, availability);
     }
 
     private void ensureValidTransition(SupplyOrderStatus current, SupplyOrderStatus next) {

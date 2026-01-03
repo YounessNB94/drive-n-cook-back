@@ -13,7 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import org.jboss.resteasy.reactive.ResponseStatus;
 
 import java.util.List;
 
@@ -50,6 +50,17 @@ public class TruckResource {
         return truckService.listIncidents(truckId);
     }
 
+    @POST
+    @Path("/{truckId}/maintenance-records")
+    @RolesAllowed("ADMIN")
+    @ResponseStatus(201)
+    public MaintenanceRecord addMaintenanceRecord(
+            @PathParam("truckId") Long truckId,
+            @Valid MaintenanceRecord record
+    ) {
+        return truckService.addMaintenanceRecord(truckId, record);
+    }
+
     @GET
     @Path("/{truckId}/maintenance-records")
     public List<MaintenanceRecord> listMaintenanceRecords(@PathParam("truckId") Long truckId) {
@@ -58,9 +69,9 @@ public class TruckResource {
 
     @POST
     @RolesAllowed("ADMIN")
-    public Response createTruck(@Valid Truck truck) {
-        Truck created = truckService.createTruck(truck);
-        return Response.status(Response.Status.CREATED).entity(created).build();
+    @ResponseStatus(201)
+    public Truck createTruck(@Valid Truck truck) {
+        return truckService.createTruck(truck);
     }
 
     @GET

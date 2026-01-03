@@ -1,5 +1,6 @@
 package fr.driv.n.cook.repository.appointment.entity;
 
+import fr.driv.n.cook.repository.franchisee.entity.FranchiseeEntity;
 import fr.driv.n.cook.repository.supply.order.entity.SupplyOrderEntity;
 import fr.driv.n.cook.repository.truck.entity.TruckEntity;
 import fr.driv.n.cook.repository.warehouse.entity.WarehouseEntity;
@@ -39,6 +40,10 @@ public class AppointmentEntity extends PanacheEntityBase {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "franchisee_id", nullable = false)
+    private FranchiseeEntity franchisee;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id", nullable = false)
     private WarehouseEntity warehouse;
 
@@ -50,4 +55,3 @@ public class AppointmentEntity extends PanacheEntityBase {
     @JoinColumn(name = "truck_id")
     private TruckEntity truck;
 }
-

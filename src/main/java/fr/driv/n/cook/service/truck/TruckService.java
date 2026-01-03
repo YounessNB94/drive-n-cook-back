@@ -9,9 +9,12 @@ import fr.driv.n.cook.repository.franchisee.entity.FranchiseeEntity;
 import fr.driv.n.cook.repository.incident.IncidentRepository;
 import fr.driv.n.cook.repository.truck.MaintenanceRecordRepository;
 import fr.driv.n.cook.repository.truck.TruckRepository;
+import fr.driv.n.cook.repository.truck.entity.MaintenanceRecordEntity;
 import fr.driv.n.cook.repository.truck.entity.TruckEntity;
 import fr.driv.n.cook.repository.warehouse.WarehouseRepository;
 import fr.driv.n.cook.repository.warehouse.entity.WarehouseEntity;
+import fr.driv.n.cook.service.incident.mapper.IncidentMapper;
+import fr.driv.n.cook.service.truck.mapper.MaintenanceRecordMapper;
 import fr.driv.n.cook.service.truck.mapper.TruckMapper;
 import fr.driv.n.cook.shared.TruckStatus;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -42,6 +45,12 @@ public class TruckService {
 
     @Inject
     TruckMapper mapper;
+
+    @Inject
+    IncidentMapper incidentMapper;
+
+    @Inject
+    MaintenanceRecordMapper maintenanceRecordMapper;
 
     public Truck getTruck(Long truckId) {
         return mapper.toDto(fetchTruck(truckId));
@@ -80,15 +89,26 @@ public class TruckService {
 
     public List<Incident> listIncidents(Long truckId) {
         fetchTruck(truckId); // ensure exists
-        return incidentRepository.listByTruck(truckId).stream()
-                .map(mapper::toDto)
+        return incidentRepository.listByFilters(null, truckId, null).stream()
+                .map(incidentMapper::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public MaintenanceRecord addMaintenanceRecord(Long truckId, MaintenanceRecord record) {
+        TruckEntity truck = fetchTruck(truckId);
+        MaintenanceRecordEntity entity = new MaintenanceRecordEntity();
+        entity.setTruck(truck);
+        entity.setDate(record.date());
+        entity.setDescription(record.description());
+        maintenanceRecordRepository.persist(entity);
+        return maintenanceRecordMapper.toDto(entity);
     }
 
     public List<MaintenanceRecord> listMaintenance(Long truckId) {
         fetchTruck(truckId);
         return maintenanceRecordRepository.listByTruck(truckId).stream()
-                .map(mapper::toDto)
+                .map(maintenanceRecordMapper::toDto)
                 .toList();
     }
 

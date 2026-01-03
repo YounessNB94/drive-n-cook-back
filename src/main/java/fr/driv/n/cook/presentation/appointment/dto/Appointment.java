@@ -10,6 +10,7 @@ public record Appointment(
         Long id,
         @NotNull AppointmentType type,
         @NotNull Long warehouseId,
+        Long franchiseeId,
         Long supplyOrderId,
         Long truckId,
         @NotNull LocalDateTime datetime,

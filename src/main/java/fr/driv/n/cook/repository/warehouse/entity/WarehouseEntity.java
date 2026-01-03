@@ -1,6 +1,5 @@
 package fr.driv.n.cook.repository.warehouse.entity;
 
-import fr.driv.n.cook.repository.appointment.entity.AppointmentEntity;
 import fr.driv.n.cook.repository.supply.order.entity.SupplyOrderEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
@@ -34,7 +33,4 @@ public class WarehouseEntity extends PanacheEntityBase {
 
     @OneToMany(mappedBy = "pickupWarehouse", fetch = FetchType.LAZY)
     private List<SupplyOrderEntity> pickUpOrders = new ArrayList<>();
-
-    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY)
-    private List<AppointmentEntity> appointments = new ArrayList<>();
 }

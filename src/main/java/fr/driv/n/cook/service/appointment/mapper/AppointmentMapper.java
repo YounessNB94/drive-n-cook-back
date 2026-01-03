@@ -13,6 +13,7 @@ import org.mapstruct.MappingTarget;
 public interface AppointmentMapper {
 
     @Mapping(target = "warehouseId", source = "warehouse.id")
+    @Mapping(target = "franchiseeId", source = "franchisee.id")
     @Mapping(target = "supplyOrderId", source = "supplyOrder.id")
     @Mapping(target = "truckId", source = "truck.id")
     Appointment toDto(AppointmentEntity entity);
@@ -22,4 +23,3 @@ public interface AppointmentMapper {
     @Mapping(target = "status", source = "status")
     void updateEntityFromPatch(AppointmentPatch patch, @MappingTarget AppointmentEntity entity);
 }
-

@@ -3,15 +3,18 @@ package fr.driv.n.cook.presentation.warehouse;
 import fr.driv.n.cook.presentation.warehouse.dto.InventoryItem;
 import fr.driv.n.cook.presentation.warehouse.dto.InventoryItemPatch;
 import fr.driv.n.cook.presentation.warehouse.dto.Warehouse;
+import fr.driv.n.cook.presentation.warehouse.dto.WarehouseAvailability;
+import fr.driv.n.cook.service.supply.order.SupplyOrderService;
 import fr.driv.n.cook.service.warehouse.InventoryService;
 import fr.driv.n.cook.service.warehouse.WarehouseService;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import org.jboss.resteasy.reactive.ResponseStatus;
 
 import java.util.List;
 
@@ -27,6 +30,12 @@ public class WarehouseResource {
     @Inject
     InventoryService inventoryService;
 
+    @Inject
+    SupplyOrderService supplyOrderService;
+
+    @Inject
+    SecurityIdentity securityIdentity;
+
     @GET
     public List<Warehouse> listWarehouses() {
         return warehouseService.listWarehouses();
@@ -41,12 +50,12 @@ public class WarehouseResource {
     @POST
     @Path("/{warehouseId}/inventory-items")
     @RolesAllowed("ADMIN")
-    public Response createInventoryItem(
+    @ResponseStatus(201)
+    public InventoryItem createInventoryItem(
             @PathParam("warehouseId") Long warehouseId,
             @Valid InventoryItem item
     ) {
-        InventoryItem created = inventoryService.createInventoryItem(warehouseId, item);
-        return Response.status(Response.Status.CREATED).entity(created).build();
+        return inventoryService.createInventoryItem(warehouseId, item);
     }
 
     @PATCH
@@ -58,5 +67,27 @@ public class WarehouseResource {
             @Valid InventoryItemPatch patch
     ) {
         return inventoryService.patchInventoryItem(warehouseId, itemId, patch);
+    }
+
+    @GET
+    @Path("/availability")
+    public List<WarehouseAvailability> checkAvailability(
+            @QueryParam("supplyOrderId") Long supplyOrderId
+    ) {
+        if (supplyOrderId == null) {
+            throw new BadRequestException("supplyOrderId est requis");
+        }
+        if (!isAdmin()) {
+            supplyOrderService.assertOrderOwnedByFranchisee(supplyOrderId, currentFranchiseeId());
+        }
+        return supplyOrderService.evaluateWarehouseAvailability(supplyOrderId);
+    }
+
+    private boolean isAdmin() {
+        return securityIdentity != null && securityIdentity.hasRole("ADMIN");
+    }
+
+    private Long currentFranchiseeId() {
+        return 1L;
     }
 }

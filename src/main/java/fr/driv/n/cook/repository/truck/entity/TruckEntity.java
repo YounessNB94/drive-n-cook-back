@@ -1,6 +1,5 @@
 package fr.driv.n.cook.repository.truck.entity;
 
-import fr.driv.n.cook.repository.appointment.entity.AppointmentEntity;
 import fr.driv.n.cook.repository.franchisee.entity.FranchiseeEntity;
 import fr.driv.n.cook.repository.incident.entity.IncidentEntity;
 import fr.driv.n.cook.repository.warehouse.entity.WarehouseEntity;
@@ -37,9 +36,6 @@ public class TruckEntity extends PanacheEntityBase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_warehouse_id")
     private WarehouseEntity currentWarehouse;
-
-    @OneToMany(mappedBy = "truck", fetch = FetchType.LAZY)
-    private List<AppointmentEntity> appointments = new ArrayList<>();
 
     @OneToMany(mappedBy = "truck", fetch = FetchType.LAZY)
     private List<IncidentEntity> incidents = new ArrayList<>();

@@ -1,6 +1,5 @@
 package fr.driv.n.cook.repository.supply.order.entity;
 
-import fr.driv.n.cook.repository.appointment.entity.AppointmentEntity;
 import fr.driv.n.cook.repository.franchisee.entity.FranchiseeEntity;
 import fr.driv.n.cook.repository.warehouse.entity.WarehouseEntity;
 import fr.driv.n.cook.shared.PaymentMethod;
@@ -58,8 +57,4 @@ public class SupplyOrderEntity extends PanacheEntityBase {
 
     @OneToMany(mappedBy = "supplyOrder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SupplyOrderItemEntity> items = new ArrayList<>();
-
-    @OneToMany(mappedBy = "supplyOrder", fetch = FetchType.LAZY)
-    private List<AppointmentEntity> appointments = new ArrayList<>();
 }
-

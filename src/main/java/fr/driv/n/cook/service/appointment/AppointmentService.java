@@ -4,6 +4,8 @@ import fr.driv.n.cook.presentation.appointment.dto.Appointment;
 import fr.driv.n.cook.presentation.appointment.dto.AppointmentPatch;
 import fr.driv.n.cook.repository.appointment.AppointmentRepository;
 import fr.driv.n.cook.repository.appointment.entity.AppointmentEntity;
+import fr.driv.n.cook.repository.franchisee.FranchiseeRepository;
+import fr.driv.n.cook.repository.franchisee.entity.FranchiseeEntity;
 import fr.driv.n.cook.repository.supply.order.SupplyOrderRepository;
 import fr.driv.n.cook.repository.supply.order.entity.SupplyOrderEntity;
 import fr.driv.n.cook.repository.truck.TruckRepository;
@@ -17,7 +19,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @ApplicationScoped
 public class AppointmentService {
@@ -35,16 +41,20 @@ public class AppointmentService {
     TruckRepository truckRepository;
 
     @Inject
+    FranchiseeRepository franchiseeRepository;
+
+    @Inject
     AppointmentMapper mapper;
 
     @Transactional
-    public Appointment create(Appointment appointmentDto) {
+    public Appointment create(Appointment appointmentDto, Long franchiseeId) {
         validateAppointmentPayload(appointmentDto);
         AppointmentEntity entity = new AppointmentEntity();
         entity.setType(appointmentDto.type());
         entity.setStatus(AppointmentStatus.SCHEDULED);
         entity.setDatetime(appointmentDto.datetime());
         entity.setWarehouse(fetchWarehouse(appointmentDto.warehouseId()));
+        entity.setFranchisee(fetchFranchisee(franchiseeId));
 
         if (appointmentDto.type() == AppointmentType.SUPPLY_PICKUP) {
             entity.setSupplyOrder(fetchSupplyOrder(appointmentDto.supplyOrderId()));
@@ -54,6 +64,12 @@ public class AppointmentService {
 
         appointmentRepository.persist(entity);
         return mapper.toDto(entity);
+    }
+
+    public List<Appointment> listForAdmin(AppointmentType type, Long warehouseId, LocalDateTime from, LocalDateTime to) {
+        return appointmentRepository.listByFilters(type, warehouseId, from, to).stream()
+                .map(mapper::toDto)
+                .toList();
     }
 
     public Appointment getById(Long appointmentId) {
@@ -71,6 +87,19 @@ public class AppointmentService {
             entity.setStatus(patch.status());
         }
         return mapper.toDto(entity);
+    }
+
+    public List<Appointment> listForFranchisee(Long franchiseeId, AppointmentType type, Long warehouseId, LocalDateTime from, LocalDateTime to) {
+        return appointmentRepository.listByFranchisee(franchiseeId, type, warehouseId, from, to).stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    public void assertAppointmentBelongsToFranchisee(Long appointmentId, Long franchiseeId) {
+        AppointmentEntity entity = fetchAppointment(appointmentId);
+        if (!isOwnedByFranchisee(entity, franchiseeId)) {
+            throw new ForbiddenException("Rendez-vous inaccessible");
+        }
     }
 
     private void validateAppointmentPayload(Appointment appointment) {
@@ -121,5 +150,13 @@ public class AppointmentService {
         return truckRepository.findByIdOptional(truckId)
                 .orElseThrow(() -> new NotFoundException("Camion introuvable"));
     }
-}
 
+    private boolean isOwnedByFranchisee(AppointmentEntity entity, Long franchiseeId) {
+        return entity.getFranchisee().getId().equals(franchiseeId);
+    }
+
+    private FranchiseeEntity fetchFranchisee(Long franchiseeId) {
+        return franchiseeRepository.findByIdOptional(franchiseeId)
+                .orElseThrow(() -> new NotFoundException("Franchisé introuvable"));
+    }
+}

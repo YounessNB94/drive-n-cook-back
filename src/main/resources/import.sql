@@ -71,3 +71,30 @@ VALUES (
     'Règles d''approvisionnement : 80% minimum via les entrepôts Driv''n Cook',
     'Conditions officielles de la franchise Driv''n Cook (version 2025-01) - frais à l''entrée, redevances et règles d''approvisionnement applicables à chaque franchisé.'
 );
+
+INSERT INTO appointments (id, type, status, datetime, created_at, franchisee_id, warehouse_id, supply_order_id, truck_id)
+VALUES (1, 'SUPPLY_PICKUP', 'SCHEDULED', '2026-01-05 09:00:00', '2026-01-01 10:00:00', 1, 1, 1, null);
+SELECT setval(pg_get_serial_sequence('appointments', 'id'), 1, true);
+
+INSERT INTO incidents (id, truck_id, description, status, created_at)
+VALUES (1, 1, 'Remplacement de courroie terminé', 'RESOLVED', now());
+SELECT setval(pg_get_serial_sequence('incidents', 'id'), 1, true);
+
+INSERT INTO maintenance_records (id, truck_id, date, description) VALUES
+    (1, 1, '2025-12-20 08:00:00', 'Vidange moteur complétée'),
+    (2, 1, '2025-12-28 09:30:00', 'Contrôle des freins et remplacement des plaquettes'),
+    (3, 2, '2025-12-18 10:00:00', 'Révision générale du circuit électrique'),
+    (4, 2, '2025-12-27 14:15:00', 'Changement du filtre à air'),
+    (5, 3, '2025-12-17 07:45:00', 'Alignement des roues avant'),
+    (6, 3, '2025-12-26 11:20:00', 'Nettoyage du système d’injection'),
+    (7, 4, '2025-12-16 15:10:00', 'Remplacement des bougies d’allumage'),
+    (8, 4, '2025-12-24 08:50:00', 'Test batterie et câblage'),
+    (9, 5, '2025-12-15 13:05:00', 'Graissage des articulations de porte'),
+    (10, 5, '2025-12-23 09:40:00', 'Remplacement courroie auxiliaire'),
+    (11, 6, '2025-12-14 16:30:00', 'Contrôle du système de climatisation'),
+    (12, 6, '2025-12-22 10:25:00', 'Équilibrage des pneus arrière'),
+    (13, 7, '2025-12-13 11:55:00', 'Inspection visuelle châssis'),
+    (14, 7, '2025-12-21 07:35:00', 'Vidange du différentiel'),
+    (15, 8, '2025-12-12 12:45:00', 'Remplacement amortisseurs avant'),
+    (16, 8, '2025-12-20 17:15:00', 'Contrôle système d’éclairage');
+SELECT setval(pg_get_serial_sequence('maintenance_records', 'id'), 16, true);
