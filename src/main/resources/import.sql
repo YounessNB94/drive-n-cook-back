@@ -62,3 +62,12 @@ VALUES
     (7, 4, 'Boissons cola', 'caisse', 25),
     (8, 4, 'Frites surgelées', 'kg', 75);
 SELECT setval(pg_get_serial_sequence('inventory_items', 'id'), 8, true);
+
+INSERT INTO franchise_terms (version, entry_fee_text, royalty_text, supply_rule_text, content)
+VALUES (
+    '2025-01',
+    'Frais d''entrée : 50 000 EUR',
+    'Redevance mensuelle : 4% du chiffre d''affaires',
+    'Règles d''approvisionnement : 80% minimum via les entrepôts Driv''n Cook',
+    'Conditions officielles de la franchise Driv''n Cook (version 2025-01) - frais à l''entrée, redevances et règles d''approvisionnement applicables à chaque franchisé.'
+);

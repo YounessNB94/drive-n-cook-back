@@ -27,7 +27,6 @@ public class FranchiseTermsEntity extends PanacheEntityBase {
     @Column(name = "supply_rule_text", nullable = false, length = 150)
     private String supplyRuleText;
 
-    @Lob
     @Column(nullable = false)
     private String content;
 }
