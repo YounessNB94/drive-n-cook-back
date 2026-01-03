@@ -10,6 +10,7 @@ public record SupplyOrder(
         Long id,
         SupplyOrderStatus status,
         Long pickupWarehouseId,
+        Long franchiseeId,
         boolean paid,
         PaymentMethod paymentMethod,
         @Size(max = 100) String paymentRef,

@@ -1,16 +1,19 @@
 package fr.driv.n.cook.presentation.truck;
 
 import fr.driv.n.cook.presentation.incident.dto.Incident;
-import fr.driv.n.cook.presentation.incident.dto.IncidentPatch;
 import fr.driv.n.cook.presentation.truck.dto.MaintenanceRecord;
 import fr.driv.n.cook.presentation.truck.dto.Truck;
+import fr.driv.n.cook.presentation.truck.dto.TruckPatch;
 import fr.driv.n.cook.service.incident.IncidentService;
 import fr.driv.n.cook.service.truck.TruckService;
+import fr.driv.n.cook.shared.TruckStatus;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
@@ -51,6 +54,39 @@ public class TruckResource {
     @Path("/{truckId}/maintenance-records")
     public List<MaintenanceRecord> listMaintenanceRecords(@PathParam("truckId") Long truckId) {
         return truckService.listMaintenance(truckId);
+    }
+
+    @POST
+    @RolesAllowed("ADMIN")
+    public Response createTruck(@Valid Truck truck) {
+        Truck created = truckService.createTruck(truck);
+        return Response.status(Response.Status.CREATED).entity(created).build();
+    }
+
+    @GET
+    @RolesAllowed("ADMIN")
+    public List<Truck> listAllTrucks(
+            @QueryParam("status") TruckStatus status,
+            @QueryParam("warehouseId") Long warehouseId
+    ) {
+        return truckService.listTrucks(status, warehouseId);
+    }
+
+    @GET
+    @RolesAllowed("ADMIN")
+    @Path("/{truckId}")
+    public Truck getTruck(@PathParam("truckId") Long truckId) {
+        return truckService.getTruck(truckId);
+    }
+
+    @PATCH
+    @RolesAllowed("ADMIN")
+    @Path("/{truckId}")
+    public Truck patchTruck(
+            @PathParam("truckId") Long truckId,
+            @Valid TruckPatch patch
+    ) {
+        return truckService.patchTruck(truckId, patch);
     }
 
     private Long currentTruckId() {

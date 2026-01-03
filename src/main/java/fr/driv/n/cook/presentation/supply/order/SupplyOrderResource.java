@@ -5,11 +5,18 @@ import fr.driv.n.cook.presentation.supply.order.dto.SupplyOrderItem;
 import fr.driv.n.cook.presentation.supply.order.dto.SupplyOrderItemPatch;
 import fr.driv.n.cook.presentation.supply.order.dto.SupplyOrderPatch;
 import fr.driv.n.cook.service.supply.order.SupplyOrderService;
+import fr.driv.n.cook.shared.SupplyOrderStatus;
+import io.quarkus.logging.Log;
+import io.quarkus.security.identity.SecurityIdentity;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+
+import java.util.List;
 
 @Path("/supply-orders")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -19,6 +26,9 @@ public class SupplyOrderResource {
 
     @Inject
     SupplyOrderService supplyOrderService;
+
+    @Inject
+    SecurityIdentity securityIdentity;
 
     @POST
     public SupplyOrder createSupplyOrder() {
@@ -44,13 +54,58 @@ public class SupplyOrderResource {
         return supplyOrderService.patchItem(itemId, itemPatch);
     }
 
+    @GET
+    public List<SupplyOrder> listSupplyOrders(
+            @QueryParam("status") SupplyOrderStatus status,
+            @QueryParam("warehouseId") Long warehouseId,
+            @QueryParam("franchiseeId") Long franchiseeId,
+            @QueryParam("paid") Boolean paid
+    ) {
+        if (isAdmin()) {
+            return supplyOrderService.listOrdersForAdmin(status, warehouseId, franchiseeId, paid);
+        }
+        return supplyOrderService.listForFranchisee(currentFranchiseeId());
+    }
+
+    @GET
+    @Path("/{orderId}")
+    public SupplyOrder getSupplyOrder(@PathParam("orderId") Long orderId) {
+        if (isAdmin()) {
+            return supplyOrderService.getOrder(orderId);
+        }
+        return supplyOrderService.getOrderForFranchisee(orderId, currentFranchiseeId());
+    }
+
+    @GET
+    @Path("/{orderId}/items")
+    public List<SupplyOrderItem> listOrderItems(@PathParam("orderId") Long orderId) {
+        if (!isAdmin()) {
+            supplyOrderService.assertOrderOwnedByFranchisee(orderId, currentFranchiseeId());
+        }
+        return supplyOrderService.listItems(orderId);
+    }
+
     @PATCH
     @Path("/{orderId}")
     public SupplyOrder updateSupplyOrder(
             @PathParam("orderId") Long orderId,
             @Valid SupplyOrderPatch patch
     ) {
+        if (patch.status() == SupplyOrderStatus.READY) {
+            enforceAdminRole();
+            return supplyOrderService.markReady(orderId);
+        }
         return supplyOrderService.patchOrder(orderId, patch);
+    }
+
+    private void enforceAdminRole() {
+        if (!isAdmin()) {
+            throw new ForbiddenException("Action réservée aux administrateurs");
+        }
+    }
+
+    private boolean isAdmin() {
+        return securityIdentity != null && securityIdentity.hasRole("ADMIN");
     }
 
     private Long currentFranchiseeId() {

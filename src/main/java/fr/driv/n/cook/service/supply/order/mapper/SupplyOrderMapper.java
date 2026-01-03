@@ -16,6 +16,7 @@ import org.mapstruct.MappingTarget;
 public interface SupplyOrderMapper {
 
     @Mapping(target = "pickupWarehouseId", source = "pickupWarehouse.id")
+    @Mapping(target = "franchiseeId", source = "franchisee.id")
     SupplyOrder toDto(SupplyOrderEntity entity);
 
     @BeanMapping(ignoreByDefault = true)

@@ -3,13 +3,21 @@ package fr.driv.n.cook.service.truck;
 import fr.driv.n.cook.presentation.incident.dto.Incident;
 import fr.driv.n.cook.presentation.truck.dto.MaintenanceRecord;
 import fr.driv.n.cook.presentation.truck.dto.Truck;
+import fr.driv.n.cook.presentation.truck.dto.TruckPatch;
+import fr.driv.n.cook.repository.franchisee.FranchiseeRepository;
+import fr.driv.n.cook.repository.franchisee.entity.FranchiseeEntity;
 import fr.driv.n.cook.repository.incident.IncidentRepository;
 import fr.driv.n.cook.repository.truck.MaintenanceRecordRepository;
 import fr.driv.n.cook.repository.truck.TruckRepository;
 import fr.driv.n.cook.repository.truck.entity.TruckEntity;
+import fr.driv.n.cook.repository.warehouse.WarehouseRepository;
+import fr.driv.n.cook.repository.warehouse.entity.WarehouseEntity;
 import fr.driv.n.cook.service.truck.mapper.TruckMapper;
+import fr.driv.n.cook.shared.TruckStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
@@ -27,10 +35,47 @@ public class TruckService {
     MaintenanceRecordRepository maintenanceRecordRepository;
 
     @Inject
+    FranchiseeRepository franchiseeRepository;
+
+    @Inject
+    WarehouseRepository warehouseRepository;
+
+    @Inject
     TruckMapper mapper;
 
     public Truck getTruck(Long truckId) {
         return mapper.toDto(fetchTruck(truckId));
+    }
+
+    public List<Truck> listTrucks(TruckStatus status, Long warehouseId) {
+        return truckRepository.listByFilters(status, warehouseId).stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    @Transactional
+    public Truck createTruck(Truck truck) {
+        if (truck.currentWarehouseId() == null) {
+            throw new BadRequestException("L'entrepôt courant est obligatoire");
+        }
+        TruckEntity entity = new TruckEntity();
+        entity.setPlateNumber(truck.plateNumber());
+        entity.setStatus(TruckStatus.IN_SERVICE);
+        entity.setCurrentWarehouse(resolveWarehouse(truck.currentWarehouseId()));
+        truckRepository.persist(entity);
+        return mapper.toDto(entity);
+    }
+
+    @Transactional
+    public Truck patchTruck(Long truckId, TruckPatch patch) {
+        TruckEntity entity = fetchTruck(truckId);
+        if (patch.assignedFranchiseeId() != null) {
+            entity.setFranchisee(resolveFranchisee(patch.assignedFranchiseeId()));
+        }
+        if (patch.currentWarehouseId() != null) {
+            entity.setCurrentWarehouse(resolveWarehouse(patch.currentWarehouseId()));
+        }
+        return mapper.toDto(entity);
     }
 
     public List<Incident> listIncidents(Long truckId) {
@@ -51,5 +96,20 @@ public class TruckService {
         return truckRepository.findByIdOptional(truckId)
                 .orElseThrow(() -> new NotFoundException("Camion introuvable"));
     }
-}
 
+    private WarehouseEntity resolveWarehouse(Long warehouseId) {
+        if (warehouseId == null) {
+            return null;
+        }
+        return warehouseRepository.findByIdOptional(warehouseId)
+                .orElseThrow(() -> new NotFoundException("Entrepôt introuvable"));
+    }
+
+    private FranchiseeEntity resolveFranchisee(Long franchiseeId) {
+        if (franchiseeId == null) {
+            return null;
+        }
+        return franchiseeRepository.findByIdOptional(franchiseeId)
+                .orElseThrow(() -> new NotFoundException("Franchisé introuvable"));
+    }
+}

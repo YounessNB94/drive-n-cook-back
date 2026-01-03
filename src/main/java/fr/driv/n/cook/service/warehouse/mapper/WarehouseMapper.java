@@ -16,4 +16,3 @@ public interface WarehouseMapper {
     @Mapping(target = "warehouseId", source = "warehouse.id")
     InventoryItem toDto(InventoryItemEntity entity);
 }
-

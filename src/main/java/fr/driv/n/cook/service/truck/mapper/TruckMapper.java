@@ -14,6 +14,7 @@ import org.mapstruct.Mapping;
 public interface TruckMapper {
 
     @Mapping(target = "currentWarehouseId", source = "currentWarehouse.id")
+    @Mapping(target = "assignedFranchiseeId", source = "franchisee.id")
     Truck toDto(TruckEntity entity);
 
     @Mapping(target = "truckId", source = "truck.id")
@@ -22,4 +23,3 @@ public interface TruckMapper {
     @Mapping(target = "truckId", source = "truck.id")
     MaintenanceRecord toDto(MaintenanceRecordEntity entity);
 }
-

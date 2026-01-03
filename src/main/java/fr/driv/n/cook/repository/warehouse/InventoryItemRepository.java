@@ -12,4 +12,8 @@ public class InventoryItemRepository implements PanacheRepositoryBase<InventoryI
     public List<InventoryItemEntity> listByWarehouse(Long warehouseId) {
         return list("warehouse.id", warehouseId);
     }
+
+    public boolean existsByWarehouseAndName(Long warehouseId, String name) {
+        return count("warehouse.id = ?1 and LOWER(name) = ?2", warehouseId, name.toLowerCase()) > 0;
+    }
 }

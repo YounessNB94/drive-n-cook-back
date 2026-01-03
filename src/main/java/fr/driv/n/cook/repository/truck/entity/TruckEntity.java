@@ -20,7 +20,7 @@ import java.util.List;
 public class TruckEntity extends PanacheEntityBase {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "plate_number", nullable = false, length = 20)
@@ -31,7 +31,7 @@ public class TruckEntity extends PanacheEntityBase {
     private TruckStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "franchisee_id", nullable = false)
+    @JoinColumn(name = "franchisee_id")
     private FranchiseeEntity franchisee;
 
     @ManyToOne(fetch = FetchType.LAZY)

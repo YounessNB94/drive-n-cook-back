@@ -20,6 +20,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
@@ -70,6 +71,9 @@ public class SupplyOrderService {
             entity.setPickupWarehouse(warehouse);
         }
         if (patch.status() != null) {
+            if (patch.status() == SupplyOrderStatus.READY) {
+                throw new BadRequestException("Seul l'admin peut passer une commande en READY");
+            }
             ensureValidTransition(entity.getStatus(), patch.status());
             entity.setStatus(patch.status());
         }
@@ -110,6 +114,47 @@ public class SupplyOrderService {
         ensureOrderAllowsItemMutation(entity.getSupplyOrder().getStatus());
         validateQuantity(patch.quantity());
         entity.setQuantity(patch.quantity());
+        return mapper.toDto(entity);
+    }
+
+    public List<SupplyOrder> listOrdersForAdmin(SupplyOrderStatus status, Long warehouseId, Long franchiseeId, Boolean paid) {
+        return supplyOrderRepository.listByFilters(status, warehouseId, franchiseeId, paid).stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    public SupplyOrder getOrder(Long orderId) {
+        return mapper.toDto(fetchOrder(orderId));
+    }
+
+    public SupplyOrder getOrderForFranchisee(Long orderId, Long franchiseeId) {
+        return mapper.toDto(fetchOrderForFranchisee(orderId, franchiseeId));
+    }
+
+    public List<SupplyOrderItem> listItems(Long orderId) {
+        fetchOrder(orderId);
+        return supplyOrderItemRepository.listByOrder(orderId).stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    public void assertOrderOwnedByFranchisee(Long orderId, Long franchiseeId) {
+        fetchOrderForFranchisee(orderId, franchiseeId);
+    }
+
+    private SupplyOrderEntity fetchOrderForFranchisee(Long orderId, Long franchiseeId) {
+        SupplyOrderEntity entity = fetchOrder(orderId);
+        if (!entity.getFranchisee().getId().equals(franchiseeId)) {
+            throw new ForbiddenException("Commande inaccessible");
+        }
+        return entity;
+    }
+
+    @Transactional
+    public SupplyOrder markReady(Long orderId) {
+        SupplyOrderEntity entity = fetchOrder(orderId);
+        ensureValidTransition(entity.getStatus(), SupplyOrderStatus.READY);
+        entity.setStatus(SupplyOrderStatus.READY);
         return mapper.toDto(entity);
     }
 
