@@ -115,15 +115,51 @@ SELECT setval(pg_get_serial_sequence('customer_order_items', 'id'), 22, true);
 
 INSERT INTO inventory_items (id, warehouse_id, name, unit, available_quantity)
 VALUES
-    (1, 1, 'Tortillas', 'kg', 50),
-    (2, 1, 'Sauce salsa', 'litre', 80),
-    (3, 2, 'Pain burger', 'pièce', 120),
-    (4, 2, 'Fromage cheddar', 'kg', 35),
-    (5, 3, 'Viande hachée', 'kg', 60),
-    (6, 3, 'Laitue', 'kg', 40),
-    (7, 4, 'Boissons cola', 'caisse', 25),
-    (8, 4, 'Frites surgelées', 'kg', 75);
-SELECT setval(pg_get_serial_sequence('inventory_items', 'id'), 8, true);
+    -- Warehouse 1 stocks every menu item
+    (1, 1, 'Tacos classique', 'portion', 150),
+    (2, 1, 'Nachos fromage', 'portion', 120),
+    (3, 1, 'Burger signature', 'portion', 90),
+    (4, 1, 'Wrap poulet', 'portion', 110),
+    (5, 1, 'Salade fraîcheur', 'portion', 80),
+    (6, 1, 'Frites maison', 'portion', 200),
+    (7, 1, 'Boisson artisanale', 'bouteille', 140),
+    (8, 1, 'Dessert brownie', 'portion', 95),
+    (9, 1, 'Tacos veggie', 'portion', 130),
+    (10, 1, 'Hot-dog gourmet', 'portion', 105),
+    -- Warehouse 2 mirrors the same catalog with different stock levels
+    (11, 2, 'Tacos classique', 'portion', 95),
+    (12, 2, 'Nachos fromage', 'portion', 85),
+    (13, 2, 'Burger signature', 'portion', 75),
+    (14, 2, 'Wrap poulet', 'portion', 88),
+    (15, 2, 'Salade fraîcheur', 'portion', 70),
+    (16, 2, 'Frites maison', 'portion', 160),
+    (17, 2, 'Boisson artisanale', 'bouteille', 120),
+    (18, 2, 'Dessert brownie', 'portion', 82),
+    (19, 2, 'Tacos veggie', 'portion', 90),
+    (20, 2, 'Hot-dog gourmet', 'portion', 78),
+    -- Warehouse 3
+    (21, 3, 'Tacos classique', 'portion', 60),
+    (22, 3, 'Nachos fromage', 'portion', 55),
+    (23, 3, 'Burger signature', 'portion', 65),
+    (24, 3, 'Wrap poulet', 'portion', 58),
+    (25, 3, 'Salade fraîcheur', 'portion', 62),
+    (26, 3, 'Frites maison', 'portion', 140),
+    (27, 3, 'Boisson artisanale', 'bouteille', 115),
+    (28, 3, 'Dessert brownie', 'portion', 74),
+    (29, 3, 'Tacos veggie', 'portion', 68),
+    (30, 3, 'Hot-dog gourmet', 'portion', 72),
+    -- Warehouse 4
+    (31, 4, 'Tacos classique', 'portion', 110),
+    (32, 4, 'Nachos fromage', 'portion', 95),
+    (33, 4, 'Burger signature', 'portion', 85),
+    (34, 4, 'Wrap poulet', 'portion', 92),
+    (35, 4, 'Salade fraîcheur', 'portion', 88),
+    (36, 4, 'Frites maison', 'portion', 175),
+    (37, 4, 'Boisson artisanale', 'bouteille', 150),
+    (38, 4, 'Dessert brownie', 'portion', 98),
+    (39, 4, 'Tacos veggie', 'portion', 112),
+    (40, 4, 'Hot-dog gourmet', 'portion', 100);
+SELECT setval(pg_get_serial_sequence('inventory_items', 'id'), 40, true);
 
 INSERT INTO franchise_terms (version, entry_fee_text, royalty_text, supply_rule_text, content)
 VALUES (
