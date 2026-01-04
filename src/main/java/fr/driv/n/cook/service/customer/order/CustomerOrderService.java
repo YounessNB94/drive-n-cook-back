@@ -19,6 +19,7 @@ import fr.driv.n.cook.service.customer.order.mapper.CustomerOrderMapper;
 import fr.driv.n.cook.shared.CustomerOrderStatus;
 import fr.driv.n.cook.shared.CustomerOrderType;
 import fr.driv.n.cook.shared.PaymentMethod;
+import fr.driv.n.cook.shared.SaleChannel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -174,9 +175,17 @@ public class CustomerOrderService {
             sale.setDate(LocalDateTime.now());
             sale.setQuantity(item.getQuantity());
             sale.setTotalAmount(item.getLineCashTotal());
+            sale.setChannel(mapOrderTypeToSaleChannel(order.getType()));
             saleRepository.persist(sale);
         });
         order.setStatus(CustomerOrderStatus.COMPLETED);
+    }
+
+    private SaleChannel mapOrderTypeToSaleChannel(CustomerOrderType type) {
+        return switch (type) {
+            case ON_SITE -> SaleChannel.ON_SITE;
+            case RESERVATION -> SaleChannel.RESERVATION;
+        };
     }
 
     private void ensureOrderOpen(CustomerOrderEntity order) {

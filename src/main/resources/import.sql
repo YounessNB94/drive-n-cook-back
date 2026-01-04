@@ -60,7 +60,7 @@ SELECT setval(pg_get_serial_sequence('menu_items', 'id'), 10, true);
 
 INSERT INTO customer_orders (id, type, status, franchisee_id, paid, payment_method, total_cash, total_points, created_at, updated_at)
 VALUES
-    (1, 'ON_SITE', 'PREPARING', 1, true, 'CASH', 48.50, 0, now(), now()),
+    (1, 'ON_SITE', 'PREPARING', 1, false, 'CASH', 48.50, 0, now(), now()),
     (2, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 32.40, 0, '2025-12-20 10:50:00', '2025-12-20 11:05:00'),
     (3, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 41.10, 0, '2025-12-21 13:10:00', '2025-12-21 13:45:00'),
     (4, 'ON_SITE', 'COMPLETED', 1, true, 'CASH', 27.80, 0, '2025-12-22 11:55:00', '2025-12-22 12:20:00'),
