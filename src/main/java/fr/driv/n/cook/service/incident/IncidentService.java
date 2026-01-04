@@ -39,7 +39,7 @@ public class IncidentService {
         IncidentEntity entity = new IncidentEntity();
         entity.setTruck(truck);
         entity.setDescription(incident.description());
-        entity.setStatus(incident.status() != null ? incident.status() : IncidentStatus.OPEN);
+        entity.setStatus(IncidentStatus.OPEN);
         incidentRepository.persist(entity);
         return incidentMapper.toDto(entity);
     }

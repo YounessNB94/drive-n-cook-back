@@ -11,7 +11,7 @@ public record Incident(
         Long id,
         Long truckId,
         @NotBlank @Size(max = 500) String description,
-        @NotNull IncidentStatus status,
+        IncidentStatus status,
         LocalDateTime createdAt
 ) {
 }
