@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.List;
 
@@ -24,6 +25,9 @@ public class FranchiseApplicationResource {
 
     @Inject
     FranchiseApplicationService applicationService;
+
+    @Inject
+    JsonWebToken jsonWebToken;
 
     @POST
     public FranchiseApplication submitApplication(@Valid FranchiseApplicationRequest request) {
@@ -64,6 +68,14 @@ public class FranchiseApplicationResource {
     }
 
     private Long currentFranchiseeId() {
-        return 1L;
+        String subject = jsonWebToken != null ? jsonWebToken.getSubject() : null;
+        if (subject == null) {
+            throw new NotAuthorizedException("Utilisateur non authentifié");
+        }
+        try {
+            return Long.valueOf(subject);
+        } catch (NumberFormatException ex) {
+            throw new NotAuthorizedException("Identifiant utilisateur invalide", ex);
+        }
     }
 }

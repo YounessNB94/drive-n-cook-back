@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.resteasy.reactive.ResponseStatus;
 
 import java.util.List;
@@ -29,10 +30,13 @@ public class TruckResource {
     @Inject
     IncidentService incidentService;
 
+    @Inject
+    JsonWebToken jsonWebToken;
+
     @GET
     @Path("/me")
     public Truck getMyTruck() {
-        return truckService.getTruck(currentTruckId());
+        return truckService.getTruck(currentFranchiseeId());
     }
 
     @POST
@@ -100,7 +104,15 @@ public class TruckResource {
         return truckService.patchTruck(truckId, patch);
     }
 
-    private Long currentTruckId() {
-        return 1L;
+    private Long currentFranchiseeId() {
+        String subject = jsonWebToken != null ? jsonWebToken.getSubject() : null;
+        if (subject == null) {
+            throw new NotAuthorizedException("Utilisateur non authentifié");
+        }
+        try {
+            return Long.valueOf(subject);
+        } catch (NumberFormatException ex) {
+            throw new NotAuthorizedException("Identifiant utilisateur invalide", ex);
+        }
     }
 }

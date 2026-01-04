@@ -12,6 +12,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 @Path("/reports")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -21,6 +22,9 @@ public class ReportResource {
 
     @Inject
     ReportService reportService;
+
+    @Inject
+    JsonWebToken jsonWebToken;
 
     @POST
     @Path("/me")
@@ -49,6 +53,14 @@ public class ReportResource {
     }
 
     private Long currentFranchiseeId() {
-        return 1L;
+        String subject = jsonWebToken != null ? jsonWebToken.getSubject() : null;
+        if (subject == null) {
+            throw new NotAuthorizedException("Utilisateur non authentifié");
+        }
+        try {
+            return Long.valueOf(subject);
+        } catch (NumberFormatException ex) {
+            throw new NotAuthorizedException("Identifiant utilisateur invalide", ex);
+        }
     }
 }

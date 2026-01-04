@@ -33,4 +33,8 @@ public class TruckRepository implements PanacheRepositoryBase<TruckEntity, Long>
         }
         return find(query.toString(), params).list();
     }
+
+    public TruckEntity  findByFranchiseeId(Long franchiseeId) {
+        return find("franchisee.id", franchiseeId).firstResult();
+    }
 }

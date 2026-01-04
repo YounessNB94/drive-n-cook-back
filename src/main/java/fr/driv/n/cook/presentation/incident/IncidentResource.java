@@ -4,13 +4,13 @@ import fr.driv.n.cook.presentation.incident.dto.Incident;
 import fr.driv.n.cook.presentation.incident.dto.IncidentPatch;
 import fr.driv.n.cook.service.incident.IncidentService;
 import fr.driv.n.cook.shared.IncidentStatus;
-import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class IncidentResource {
     IncidentService incidentService;
 
     @Inject
-    SecurityIdentity securityIdentity;
+    JsonWebToken jsonWebToken;
 
     @GET
     @RolesAllowed("ADMIN")
@@ -75,10 +75,18 @@ public class IncidentResource {
     }
 
     private boolean isAdmin() {
-        return securityIdentity != null && securityIdentity.hasRole("ADMIN");
+        return jsonWebToken != null && jsonWebToken.getGroups() != null && jsonWebToken.getGroups().contains("ADMIN");
     }
 
     private Long currentFranchiseeId() {
-        return 1L;
+        String subject = jsonWebToken != null ? jsonWebToken.getSubject() : null;
+        if (subject == null) {
+            throw new NotAuthorizedException("Utilisateur non authentifié");
+        }
+        try {
+            return Long.valueOf(subject);
+        } catch (NumberFormatException ex) {
+            throw new NotAuthorizedException("Identifiant utilisateur invalide", ex);
+        }
     }
 }

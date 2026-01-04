@@ -5,11 +5,9 @@ import fr.driv.n.cook.service.revenue.RevenueService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.Produces;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,6 +19,9 @@ public class RevenueResource {
 
     @Inject
     RevenueService revenueService;
+
+    @Inject
+    JsonWebToken jsonWebToken;
 
      @GET
      @Path("/me")
@@ -42,6 +43,14 @@ public class RevenueResource {
     }
 
     private Long currentFranchiseeId() {
-        return 1L;
+        String subject = jsonWebToken != null ? jsonWebToken.getSubject() : null;
+        if (subject == null) {
+            throw new NotAuthorizedException("Utilisateur non authentifié");
+        }
+        try {
+            return Long.valueOf(subject);
+        } catch (NumberFormatException ex) {
+            throw new NotAuthorizedException("Identifiant utilisateur invalide", ex);
+        }
     }
 }

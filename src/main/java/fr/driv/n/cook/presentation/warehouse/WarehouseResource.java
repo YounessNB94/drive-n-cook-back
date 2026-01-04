@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.resteasy.reactive.ResponseStatus;
 
 import java.util.List;
@@ -35,6 +36,9 @@ public class WarehouseResource {
 
     @Inject
     SecurityIdentity securityIdentity;
+
+    @Inject
+    JsonWebToken jsonWebToken;
 
     @GET
     public List<Warehouse> listWarehouses() {
@@ -84,10 +88,18 @@ public class WarehouseResource {
     }
 
     private boolean isAdmin() {
-        return securityIdentity != null && securityIdentity.hasRole("ADMIN");
+        return jsonWebToken != null && jsonWebToken.getGroups() != null && jsonWebToken.getGroups().contains("ADMIN");
     }
 
     private Long currentFranchiseeId() {
-        return 1L;
+        String subject = jsonWebToken != null ? jsonWebToken.getSubject() : null;
+        if (subject == null) {
+            throw new NotAuthorizedException("Utilisateur non authentifié");
+        }
+        try {
+            return Long.valueOf(subject);
+        } catch (NumberFormatException ex) {
+            throw new NotAuthorizedException("Identifiant utilisateur invalide", ex);
+        }
     }
 }

@@ -52,8 +52,12 @@ public class TruckService {
     @Inject
     MaintenanceRecordMapper maintenanceRecordMapper;
 
-    public Truck getTruck(Long truckId) {
-        return mapper.toDto(fetchTruck(truckId));
+    public Truck getTruck(Long franchiseeId) {
+        TruckEntity entity = truckRepository.findByFranchiseeId(franchiseeId);
+        if (entity == null) {
+            throw new NotFoundException("Aucun camion assigné à ce franchisé");
+        }
+        return mapper.toDto(entity);
     }
 
     public List<Truck> listTrucks(TruckStatus status, Long warehouseId) {
