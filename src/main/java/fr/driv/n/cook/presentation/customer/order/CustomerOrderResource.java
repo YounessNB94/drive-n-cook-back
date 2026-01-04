@@ -54,6 +54,12 @@ public class CustomerOrderResource {
         return customerOrderService.patchOrder(orderId, patch);
     }
 
+    @GET
+    @Path("/{orderId}/items")
+    public List<CustomerOrderItem> listOrderItems(@PathParam("orderId") Long orderId) {
+        return customerOrderService.listItemsForFranchisee(orderId, currentFranchiseeId());
+    }
+
     private Long currentFranchiseeId() {
         return 1L;
     }

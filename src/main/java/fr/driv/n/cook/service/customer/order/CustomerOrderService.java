@@ -87,6 +87,16 @@ public class CustomerOrderService {
         return mapper.toDto(fetchOrder(orderId));
     }
 
+    public List<CustomerOrderItem> listItemsForFranchisee(Long orderId, Long franchiseeId) {
+        CustomerOrderEntity order = fetchOrder(orderId);
+        if (!order.getFranchisee().getId().equals(franchiseeId)) {
+            throw new ForbiddenException("Commande inaccessible");
+        }
+        return orderItemRepository.listByOrder(orderId).stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
     public List<CustomerOrderItem> listItems(Long orderId) {
         return orderItemRepository.listByOrder(orderId).stream()
                 .map(mapper::toDto)
