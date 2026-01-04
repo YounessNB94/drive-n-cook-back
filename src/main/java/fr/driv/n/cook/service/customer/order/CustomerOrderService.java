@@ -23,6 +23,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 
 import java.math.BigDecimal;
@@ -65,6 +66,20 @@ public class CustomerOrderService {
             entity.setLoyaltyCard(fetchLoyaltyCard(request.loyaltyCardId()));
         }
         orderRepository.persist(entity);
+        return mapper.toDto(entity);
+    }
+
+    public List<CustomerOrder> listOrders(Long franchiseeId) {
+        return orderRepository.list("franchisee.id", franchiseeId).stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    public CustomerOrder getOrderForFranchisee(Long orderId, Long franchiseeId) {
+        CustomerOrderEntity entity = fetchOrder(orderId);
+        if (!entity.getFranchisee().getId().equals(franchiseeId)) {
+            throw new ForbiddenException("Commande inaccessible");
+        }
         return mapper.toDto(entity);
     }
 

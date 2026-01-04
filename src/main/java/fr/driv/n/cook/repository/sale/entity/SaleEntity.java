@@ -21,14 +21,6 @@ public class SaleEntity extends PanacheEntityBase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_item_id")
-    private MenuItemEntity menuItem;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_order_id", nullable = false)
-    private CustomerOrderEntity customerOrder;
-
     @Column(nullable = false)
     private Integer quantity;
 
@@ -41,5 +33,13 @@ public class SaleEntity extends PanacheEntityBase {
 
     @Column(nullable = false)
     private LocalDateTime date;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "menu_item_id")
+    private MenuItemEntity menuItem;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_order_id", nullable = false)
+    private CustomerOrderEntity customerOrder;
 }
 

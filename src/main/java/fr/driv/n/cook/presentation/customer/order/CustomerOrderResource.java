@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import java.util.List;
 
 @Path("/customer-orders")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -18,6 +19,17 @@ public class CustomerOrderResource {
 
     @Inject
     CustomerOrderService customerOrderService;
+
+    @GET
+    public List<CustomerOrder> listCustomerOrders() {
+        return customerOrderService.listOrders(currentFranchiseeId());
+    }
+
+    @GET
+    @Path("/{orderId}")
+    public CustomerOrder getCustomerOrder(@PathParam("orderId") Long orderId) {
+        return customerOrderService.getOrderForFranchisee(orderId, currentFranchiseeId());
+    }
 
     @POST
     public CustomerOrder createCustomerOrder(@Valid CustomerOrder order) {
