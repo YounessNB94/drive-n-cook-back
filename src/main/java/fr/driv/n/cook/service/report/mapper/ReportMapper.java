@@ -11,15 +11,5 @@ import org.mapstruct.Mapping;
 public interface ReportMapper {
 
     Report toDto(ReportEntity entity);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "franchisee", ignore = true)
-    @Mapping(target = "status", expression = "java(fr.driv.n.cook.shared.ReportStatus.PENDING)")
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "filePath", ignore = true)
-    @Mapping(target = "type", source = "type")
-    @Mapping(target = "from", source = "from")
-    @Mapping(target = "to", source = "to")
-    ReportEntity toEntity(ReportRequest request);
 }
 

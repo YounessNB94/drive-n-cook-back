@@ -41,13 +41,6 @@ public class ReportResource {
         return buildPdfResponse(file);
     }
 
-    @GET
-    @Path("/{reportId}")
-    public Report getReport(@PathParam("reportId") Long reportId) {
-        return reportService.getReport(reportId);
-    }
-
-
     private Response buildPdfResponse(ReportFile file) {
         return Response.ok(file.content())
                 .type(file.contentType())
