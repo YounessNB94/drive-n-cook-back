@@ -41,6 +41,34 @@ VALUES
     (6, 'READY', 2, 4, true, 'CASH', 'PAY-READY-2', now(), now());
 SELECT setval(pg_get_serial_sequence('supply_orders', 'id'), 6, true);
 
+INSERT INTO supply_order_items (id, supply_order_id, inventory_item_id, quantity)
+VALUES
+    -- Order 1 (warehouse 1 stock)
+    (1, 1, 1, 40),
+    (2, 1, 2, 25),
+    (3, 1, 6, 50),
+    -- Order 2 (warehouse 2)
+    (4, 2, 11, 30),
+    (5, 2, 12, 20),
+    (6, 2, 16, 45),
+    -- Order 3 (warehouse 3)
+    (7, 3, 21, 35),
+    (8, 3, 23, 25),
+    (9, 3, 27, 40),
+    -- Order 4 (warehouse 2, admin franchisee)
+    (10, 4, 14, 18),
+    (11, 4, 15, 16),
+    (12, 4, 20, 22),
+    -- Order 5 (warehouse 3)
+    (13, 5, 24, 28),
+    (14, 5, 25, 24),
+    (15, 5, 29, 32),
+    -- Order 6 (warehouse 4)
+    (16, 6, 31, 42),
+    (17, 6, 33, 30),
+    (18, 6, 36, 55);
+SELECT setval(pg_get_serial_sequence('supply_order_items', 'id'), 18, true);
+
 INSERT INTO menus (id, franchisee_id, status, updated_at) VALUES
     (1, 1, 'PUBLISHED', now());
 SELECT setval(pg_get_serial_sequence('menus', 'id'), 1, true);

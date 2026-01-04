@@ -19,8 +19,8 @@ public class LoyaltyCardResource {
     LoyaltyCardService loyaltyCardService;
 
     @POST
-    public LoyaltyCard createLoyaltyCard(@Valid LoyaltyCard loyaltyCard) {
-        return loyaltyCardService.createCard(loyaltyCard);
+    public LoyaltyCard createLoyaltyCard() {
+        return loyaltyCardService.createCard();
     }
 
     @GET

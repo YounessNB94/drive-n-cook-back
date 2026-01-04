@@ -19,10 +19,10 @@ public class LoyaltyCardService {
     LoyaltyCardMapper mapper;
 
     @Transactional
-    public LoyaltyCard createCard(LoyaltyCard request) {
+    public LoyaltyCard createCard() {
         LoyaltyCardEntity entity = new LoyaltyCardEntity();
-        entity.setCustomerRef(request.customerRef());
-        entity.setPointsBalance(request.pointsBalance() != null ? request.pointsBalance() : 0);
+        entity.setCustomerRef(generateCustomerRef());
+        entity.setPointsBalance(0);
         loyaltyCardRepository.persist(entity);
         return mapper.toDto(entity);
     }
@@ -51,6 +51,12 @@ public class LoyaltyCardService {
     private LoyaltyCardEntity fetchCard(Long cardId) {
         return loyaltyCardRepository.findByIdOptional(cardId)
                 .orElseThrow(() -> new NotFoundException("Carte introuvable"));
+    }
+
+    private String generateCustomerRef() {
+        // Implémentation de la génération de la référence client a parti la date actuellle et un nombre aléatoire
+        return "CUST-" + System.currentTimeMillis();
+
     }
 }
 

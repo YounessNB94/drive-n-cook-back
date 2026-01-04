@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public record LoyaltyCard(
         Long id,
-        @NotBlank @Size(max = 100) String customerRef,
+        @Size(max = 100) String customerRef,
         Integer pointsBalance,
         LocalDateTime createdAt
 ) {
