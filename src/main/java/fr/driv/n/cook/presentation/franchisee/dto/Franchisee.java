@@ -1,5 +1,6 @@
 package fr.driv.n.cook.presentation.franchisee.dto;
 
+import fr.driv.n.cook.shared.FranchiseeRole;
 import java.time.LocalDateTime;
 
 public record Franchisee(
@@ -10,6 +11,7 @@ public record Franchisee(
         String phone,
         String companyName,
         String address,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        FranchiseeRole role
 ) {
 }

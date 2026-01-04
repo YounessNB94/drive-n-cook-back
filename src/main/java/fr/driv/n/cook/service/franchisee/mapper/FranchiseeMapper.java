@@ -5,6 +5,7 @@ import fr.driv.n.cook.presentation.franchisee.dto.Franchisee;
 import fr.driv.n.cook.presentation.franchisee.dto.FranchiseePatch;
 import fr.driv.n.cook.presentation.franchisee.dto.FranchiseeRegistration;
 import fr.driv.n.cook.repository.franchisee.entity.FranchiseeEntity;
+import fr.driv.n.cook.shared.FranchiseeRole;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,6 +20,7 @@ public interface FranchiseeMapper {
     @Mapping(target = "orders", ignore = true)
     @Mapping(target = "trucks", ignore = true)
     @Mapping(target = "passwordHash", expression = "java(registration.password())")
+    @Mapping(target = "role", expression = "java(FranchiseeRole.FRANCHISEE)")
     FranchiseeEntity toEntity(FranchiseeRegistration registration);
 
     Franchisee toDto(FranchiseeEntity entity);

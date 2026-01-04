@@ -2,7 +2,6 @@ package fr.driv.n.cook.presentation.franchisee;
 
 import fr.driv.n.cook.presentation.franchisee.dto.Franchisee;
 import fr.driv.n.cook.presentation.franchisee.dto.FranchiseePatch;
-import fr.driv.n.cook.presentation.franchisee.dto.FranchiseeRegistration;
 import fr.driv.n.cook.service.franchisee.FranchiseeService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,11 +25,6 @@ public class FranchiseesResource {
     @Path("/me")
     public Franchisee getOwnProfile() {
         return franchiseeService.getById(currentFranchiseeId());
-    }
-
-    @POST
-    public Franchisee createFranchiseeAccount(@Valid FranchiseeRegistration registration) {
-        return franchiseeService.register(registration);
     }
 
     @PATCH

@@ -1,5 +1,6 @@
 package fr.driv.n.cook.repository.franchisee.entity;
 
+import fr.driv.n.cook.shared.FranchiseeRole;
 import fr.driv.n.cook.repository.customer.order.entity.CustomerOrderEntity;
 import fr.driv.n.cook.repository.franchise.application.entity.FranchiseApplicationEntity;
 import fr.driv.n.cook.repository.truck.entity.TruckEntity;
@@ -43,6 +44,17 @@ public class FranchiseeEntity extends PanacheEntityBase {
 
     @Column(nullable = false, length = 255)
     private String address;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private FranchiseeRole role;
+
+    @PrePersist
+    public void ensureRole() {
+        if (role == null) {
+            role = FranchiseeRole.FRANCHISEE;
+        }
+    }
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

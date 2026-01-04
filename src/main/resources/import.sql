@@ -6,10 +6,10 @@
 -- alter sequence myentity_seq restart with 4;
 
 -- Données d'exemple pour faciliter les tests locaux
-INSERT INTO franchisees (id, email, password_hash, first_name, last_name, phone, company_name, address, created_at)
+INSERT INTO franchisees (id, email, password_hash, first_name, last_name, phone, company_name, address, created_at, role)
 VALUES
-    (1, 'demo@drivncook.test', '$2a$10$demo', 'Demo', 'Owner', '+33123456789', 'Demo Cook', '1 rue Demo, Paris', now()),
-    (2, 'admin@drivncook.test', '$2a$10$admin', 'Admin', 'Manager', '+33198765432', 'Admin Cook', '2 avenue Admin, Lyon', now());
+    (1, 'demo@drivncook.test', '$2a$10$PrPBDyIp4dAqFft16iQwUuAc4Fc7zjLvw50XtgUvlbs8IpYiMkHWe', 'Demo', 'Owner', '+33123456789', 'Demo Cook', '1 rue Demo, Paris', now(), 'FRANCHISEE'),
+    (2, 'admin@drivncook.test', '$2a$10$PrPBDyIp4dAqFft16iQwUuAc4Fc7zjLvw50XtgUvlbs8IpYiMkHWe', 'Admin', 'Manager', '+33198765432', 'Admin Cook', '2 avenue Admin, Lyon', now(), 'ADMIN');
 SELECT setval(pg_get_serial_sequence('franchisees', 'id'), 2, true);
 
 INSERT INTO warehouses (id, name, address, phone) VALUES
