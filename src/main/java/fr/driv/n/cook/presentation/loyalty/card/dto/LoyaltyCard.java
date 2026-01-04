@@ -9,6 +9,7 @@ public record LoyaltyCard(
         Long id,
         @Size(max = 100) String customerRef,
         Integer pointsBalance,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        Long franchiseeId
 ) {
 }

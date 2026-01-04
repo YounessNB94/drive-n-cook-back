@@ -1,6 +1,7 @@
 package fr.driv.n.cook.repository.loyalty.card.entity;
 
 import fr.driv.n.cook.repository.customer.order.entity.CustomerOrderEntity;
+import fr.driv.n.cook.repository.franchisee.entity.FranchiseeEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,5 +34,9 @@ public class LoyaltyCardEntity extends PanacheEntityBase {
 
     @OneToMany(mappedBy = "loyaltyCard", fetch = FetchType.LAZY)
     private List<CustomerOrderEntity> orders = new ArrayList<>();
-}
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "franchisee_id", nullable = false)
+    private FranchiseeEntity franchisee;
+
+}

@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
+import java.util.List;
+
 @Path("/loyalty-cards")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -20,17 +22,27 @@ public class LoyaltyCardResource {
 
     @POST
     public LoyaltyCard createLoyaltyCard() {
-        return loyaltyCardService.createCard();
+        return loyaltyCardService.createCard(currentFranchiseId());
+    }
+
+    @GET
+    public List<LoyaltyCard> listMyLoyaltyCards() {
+        return loyaltyCardService.listForFranchisee(currentFranchiseId());
     }
 
     @GET
     @Path("/{cardId}")
     public LoyaltyCard getLoyaltyCard(@PathParam("cardId") Long cardId) {
-        return loyaltyCardService.getCard(cardId);
+        return loyaltyCardService.getCardForFranchisee(cardId, currentFranchiseId());
     }
 
     @GET
+    @Path("/lookup")
     public LoyaltyCard lookupByCode(@Valid @BeanParam LoyaltyCardLookup lookup) {
         return loyaltyCardService.getByCustomerRef(lookup.code());
+    }
+
+    private Long currentFranchiseId() {
+        return 1L;
     }
 }

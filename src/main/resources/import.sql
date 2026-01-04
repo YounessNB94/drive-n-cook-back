@@ -41,34 +41,6 @@ VALUES
     (6, 'READY', 2, 4, true, 'CASH', 'PAY-READY-2', now(), now());
 SELECT setval(pg_get_serial_sequence('supply_orders', 'id'), 6, true);
 
-INSERT INTO supply_order_items (id, supply_order_id, inventory_item_id, quantity)
-VALUES
-    -- Order 1 (warehouse 1 stock)
-    (1, 1, 1, 40),
-    (2, 1, 2, 25),
-    (3, 1, 6, 50),
-    -- Order 2 (warehouse 2)
-    (4, 2, 11, 30),
-    (5, 2, 12, 20),
-    (6, 2, 16, 45),
-    -- Order 3 (warehouse 3)
-    (7, 3, 21, 35),
-    (8, 3, 23, 25),
-    (9, 3, 27, 40),
-    -- Order 4 (warehouse 2, admin franchisee)
-    (10, 4, 14, 18),
-    (11, 4, 15, 16),
-    (12, 4, 20, 22),
-    -- Order 5 (warehouse 3)
-    (13, 5, 24, 28),
-    (14, 5, 25, 24),
-    (15, 5, 29, 32),
-    -- Order 6 (warehouse 4)
-    (16, 6, 31, 42),
-    (17, 6, 33, 30),
-    (18, 6, 36, 55);
-SELECT setval(pg_get_serial_sequence('supply_order_items', 'id'), 18, true);
-
 INSERT INTO menus (id, franchisee_id, status, updated_at) VALUES
     (1, 1, 'PUBLISHED', now());
 SELECT setval(pg_get_serial_sequence('menus', 'id'), 1, true);
@@ -141,6 +113,12 @@ INSERT INTO customer_order_items (id, customer_order_id, menu_item_id, quantity,
     (22, 11, 3, 2, 27.10, NULL);
 SELECT setval(pg_get_serial_sequence('customer_order_items', 'id'), 22, true);
 
+INSERT INTO loyalty_cards (id, customer_ref, points_balance, created_at, franchisee_id) VALUES
+    (1, 'CUST-0001', 1200, now() - interval '10 days', 1),
+    (2, 'CUST-0002', 450, now() - interval '5 days', 1),
+    (3, 'CUST-ADMIN-1', 800, now() - interval '7 days', 2);
+SELECT setval(pg_get_serial_sequence('loyalty_cards', 'id'), 3, true);
+
 INSERT INTO inventory_items (id, warehouse_id, name, unit, available_quantity)
 VALUES
     -- Warehouse 1 stocks every menu item
@@ -188,6 +166,35 @@ VALUES
     (39, 4, 'Tacos veggie', 'portion', 112),
     (40, 4, 'Hot-dog gourmet', 'portion', 100);
 SELECT setval(pg_get_serial_sequence('inventory_items', 'id'), 40, true);
+
+INSERT INTO supply_order_items (id, supply_order_id, inventory_item_id, quantity)
+VALUES
+    -- Order 1 (warehouse 1 stock)
+    (1, 1, 1, 40),
+    (2, 1, 2, 25),
+    (3, 1, 6, 50),
+    -- Order 2 (warehouse 2)
+    (4, 2, 11, 30),
+    (5, 2, 12, 20),
+    (6, 2, 16, 45),
+    -- Order 3 (warehouse 3)
+    (7, 3, 21, 35),
+    (8, 3, 23, 25),
+    (9, 3, 27, 40),
+    -- Order 4 (warehouse 2, admin franchisee)
+    (10, 4, 14, 18),
+    (11, 4, 15, 16),
+    (12, 4, 20, 22),
+    -- Order 5 (warehouse 3)
+    (13, 5, 24, 28),
+    (14, 5, 25, 24),
+    (15, 5, 29, 32),
+    -- Order 6 (warehouse 4)
+    (16, 6, 31, 42),
+    (17, 6, 33, 30),
+    (18, 6, 36, 55);
+SELECT setval(pg_get_serial_sequence('supply_order_items', 'id'), 18, true);
+
 
 INSERT INTO franchise_terms (version, entry_fee_text, royalty_text, supply_rule_text, content)
 VALUES (

@@ -65,7 +65,7 @@ public class FranchiseeService {
                 .toList();
     }
 
-    private FranchiseeEntity fetchFranchisee(Long franchiseeId) {
+    public FranchiseeEntity fetchFranchisee(Long franchiseeId) {
         return repository.findByIdOptional(franchiseeId)
                 .orElseThrow(() -> new NotFoundException("Franchisé introuvable"));
     }
