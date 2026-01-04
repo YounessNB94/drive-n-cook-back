@@ -26,22 +26,26 @@ public class SaleResource {
     @GET
     @Path("/me")
     public List<Sale> listMySales(
-            @QueryParam("from") LocalDateTime from,
-            @QueryParam("to") LocalDateTime to,
+            @QueryParam("from") LocalDate from,
+            @QueryParam("to") LocalDate to,
             @QueryParam("menuItemId") Long menuItemId
     ) {
-        return saleService.listSales(currentFranchiseeId(), from, to, menuItemId);
+        LocalDateTime dateFrom = from != null ? from.atStartOfDay() : null;
+        LocalDateTime dateTo = to != null ? to.atTime(23, 59, 59) : null;
+        return saleService.listSales(currentFranchiseeId(), dateFrom, dateTo, menuItemId);
     }
 
     @GET
     @RolesAllowed("ADMIN")
     public List<Sale> listSalesForAdmin(
-            @QueryParam("from") LocalDateTime from,
-            @QueryParam("to") LocalDateTime to,
+            @QueryParam("from") LocalDate from,
+            @QueryParam("to") LocalDate to,
             @QueryParam("menuItemId") Long menuItemId,
             @QueryParam("franchiseeId") Long franchiseeId
     ) {
-        return saleService.listSales(franchiseeId, from, to, menuItemId);
+        LocalDateTime dateFrom = from != null ? from.atStartOfDay() : null;
+        LocalDateTime dateTo = to != null ? to.atTime(23, 59, 59) : null;
+        return saleService.listSales(franchiseeId, dateFrom, dateTo, menuItemId);
     }
 
     private Long currentFranchiseeId() {
