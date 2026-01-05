@@ -82,6 +82,9 @@ public class TruckService {
     @Transactional
     public Truck patchTruck(Long truckId, TruckPatch patch) {
         TruckEntity entity = fetchTruck(truckId);
+        if (patch.status() != null) {
+            entity.setStatus(patch.status());
+        }
         if (patch.assignedFranchiseeId() != null) {
             entity.setFranchisee(resolveFranchisee(patch.assignedFranchiseeId()));
         }
@@ -103,7 +106,7 @@ public class TruckService {
         TruckEntity truck = fetchTruck(truckId);
         MaintenanceRecordEntity entity = new MaintenanceRecordEntity();
         entity.setTruck(truck);
-        entity.setDate(record.date());
+        entity.setDate(record.date().atStartOfDay());
         entity.setDescription(record.description());
         maintenanceRecordRepository.persist(entity);
         return maintenanceRecordMapper.toDto(entity);

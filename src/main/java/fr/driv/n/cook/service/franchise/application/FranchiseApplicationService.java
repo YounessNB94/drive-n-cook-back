@@ -79,4 +79,9 @@ public class FranchiseApplicationService {
         return repository.findByIdOptional(applicationId)
                 .orElseThrow(() -> new NotFoundException("Demande introuvable"));
     }
+
+    public FranchiseApplication getById(Long applicationId) {
+        FranchiseApplicationEntity entity = fetchApplication(applicationId);
+        return mapper.toDto(entity);
+    }
 }

@@ -35,7 +35,6 @@ public class ReportResource {
     }
 
     @POST
-    @RolesAllowed("ADMIN")
     @Produces("application/pdf")
     public Response requestReportForAdmin(@Valid ReportRequest request) {
         if (request.franchiseeId() == null) {

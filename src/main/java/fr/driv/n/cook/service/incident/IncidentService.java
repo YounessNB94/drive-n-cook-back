@@ -92,6 +92,9 @@ public class IncidentService {
         if (current == IncidentStatus.OPEN && next == IncidentStatus.IN_PROGRESS) {
             return;
         }
+        if (current == IncidentStatus.OPEN && next == IncidentStatus.RESOLVED) {
+            return;
+        }
         if (current == IncidentStatus.IN_PROGRESS && next == IncidentStatus.RESOLVED) {
             return;
         }

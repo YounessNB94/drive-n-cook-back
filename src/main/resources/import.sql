@@ -210,7 +210,7 @@ VALUES (1, 'SUPPLY_PICKUP', 'SCHEDULED', '2026-01-05 09:00:00', '2026-01-01 10:0
 SELECT setval(pg_get_serial_sequence('appointments', 'id'), 1, true);
 
 INSERT INTO incidents (id, truck_id, description, status, created_at)
-VALUES (1, 1, 'Remplacement de courroie terminé', 'RESOLVED', now());
+VALUES (1, 1, 'Remplacement de courroie terminé', 'OPEN', now());
 SELECT setval(pg_get_serial_sequence('incidents', 'id'), 1, true);
 
 INSERT INTO maintenance_records (id, truck_id, date, description) VALUES

@@ -48,6 +48,15 @@ public class FranchiseApplicationResource {
         return applicationService.listAll(status);
     }
 
+    @GET
+    @Path("/{applicationId}")
+    @RolesAllowed({"ADMIN"})
+    public FranchiseApplication getApplication(
+            @PathParam("applicationId") Long applicationId
+    ) {
+        return applicationService.getById(applicationId);
+    }
+
     @PATCH
     @Path("/{applicationId}")
     public FranchiseApplication updatePayment(
